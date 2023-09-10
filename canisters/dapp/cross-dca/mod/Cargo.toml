@@ -1,0 +1,29 @@
+[package]
+name = "cross_dca_mod"
+version = "0.1.0"
+edition = "2021"
+
+
+[lib]
+path = "src/mod.rs"
+crate-type = ["lib"]
+
+[dependencies]
+async-trait = { workspace = true }
+candid = { workspace = true }
+ciborium = { workspace = true }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-certified-map = { workspace = true }
+ic-stable-structures = { workspace = true }
+serde_bytes = { workspace = true }
+serde = { workspace = true }
+itertools = { workspace = true }
+ego_types = { workspace = true }
+ego_lib = { workspace = true }
+ego_macros = { workspace = true }
+hex = { workspace = true }
+
+[features]
+default = []
+debug = []

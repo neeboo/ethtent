@@ -1,0 +1,44 @@
+[workspace]
+members = ["dapp/cross_dca/actor", "dapp/cross_dca/mod"]
+
+[workspace.dependencies]
+candid = "0.9.2"
+ic-cdk = { version = "0.10.0" }
+ic-cdk-timers = "0.4.0"
+ic-cdk-macros = "0.7.1"
+serde = "1.0"
+serde_json = "1.0"
+serde_bytes = "0.11"
+serde_cbor = "0.11.2"
+ic-ledger-types = "0.7.0"
+ic-stable-structures = "0.5.4"
+ic-certified-map = "0.4.0"
+ciborium = "0.2.1"
+
+ego_types = { git = "https://github.com/EgoDevs/ego", branch = "main" }
+ego_macros = { git = "https://github.com/EgoDevs/ego", branch = "main" }
+ego_lib = { git = "https://github.com/EgoDevs/ego", branch = "main" }
+ego_utils = { git = "https://github.com/EgoDevs/ego", branch = "main" }
+ego_inner_rpc = { git = "https://github.com/EgoDevs/ego", branch = "main" }
+
+
+async-trait = "0.1.57"
+
+md5 = "0.7.0"
+rand = "0.8.5"
+getrandom = { version = "0.2.8", features = ["js"] }
+
+hex = "0.4.3"
+hex-literal = "0.4.1"
+itertools = "0.11.0"
+
+mockall = "0.11.2"
+tokio = { version = "1.21.0", features = ["full"] }
+sha2 = "0.10.6"
+
+multibase = "0.9.1"
+
+[profile.release]
+lto = true
+debug = true
+opt-level = 'z'

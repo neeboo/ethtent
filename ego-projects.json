@@ -1,0 +1,12 @@
+[
+  {
+    "category": "dapp",
+    "package": "cross_dca",
+    "bin_name": "cross_dca",
+    "config": "./configs/cross_dca.json",
+    "post_install_sequence": 100,
+    "no_deploy": false,
+    "single_mod": true,
+    "actor_entry": true
+  }
+]
