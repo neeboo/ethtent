@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { use, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -16,7 +16,8 @@ interface DialogDemoProps {
 }
 
 interface DCAprop {
-    amount: number;
+    amount?: number;
+    rotationCount?: number;
     time?: number;
     currency?: string;
 };
@@ -28,6 +29,8 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
     const [selectedRotation, setSelectedRotation] = useState<number | null>(null);
     const [selectedRotationId, setSelectedRotationId] = useState<number | null>(null);
     const [dca, setDCA] = useState<DCAprop | null>(null);
+    const [commissionCharge, setCommissionCharge] = useState<number | null>(null);
+    const [open, setOpen] = React.useState(false);
 
 
     const ONE_HOUR = 60 * 60 * 1000;
@@ -70,12 +73,18 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
         console.log("submitDCA");
     }
 
-
-
+    useEffect(() => {
+        if (open) {
+            setCommissionCharge(0);
+            setDCA(null);
+            setSelectedRotationId(1);
+            setSelectedRotation(null);
+        }
+    }, [open]);
 
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" disabled={!available} onClick={() => openDialog(true)}>
                     {available ? 'Create A Plan' : 'Coming Soon'}
@@ -93,8 +102,19 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                         </div>
                         <div className="mt-6">
                             <div className="mb-1 text-xs font-normal text-black">Amount Per Investment</div>
-                            <Input value={dca?.amount ? dca.amount : "--"} onChange={
-                                (e) => setDCA({ ...dca, amount: parseInt(e.target.value) })
+                            <Input value={open ? dca?.amount : 0} onChange={
+                                (e) => {
+                                    setDCA({ ...dca, amount: parseInt(e.target.value) })
+                                    setCommissionCharge(parseInt(e.target.value) * 0.003)
+                                }
+                            }></Input>
+                        </div>
+                        <div className="mt-6">
+                            <div className="mb-1 text-xs font-normal text-black">Number of Rotation</div>
+                            <Input value={open ? dca?.rotationCount : 0} onChange={
+                                (e) => {
+                                    setDCA({ ...dca, rotationCount: parseInt(e.target.value) })
+                                }
                             }></Input>
                         </div>
                         <div className="mt-6">
@@ -126,7 +146,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                         <div className="grid grid-rows-4 gap-2">
                             <div className="flex justify-between text-xs font-normal text-black">
                                 <div>Amount Per Investment</div>
-                                <div>{dca?.amount} USDT</div>
+                                <div>{dca?.amount ? dca?.amount : "--"} USDT</div>
                             </div>
                             <div className="flex justify-between text-xs font-normal text-black">
                                 <div>Created Time</div>
@@ -138,7 +158,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                             </div>
                             <div className="flex justify-between text-xs font-normal text-black">
                                 <div>Commission (0.3%)</div>
-                                <div>{dca?.amount ? dca.amount : "--"}</div>
+                                <div>{dca?.amount ? commissionCharge : "--"}</div>
                             </div>
                         </div>
                     </div>
