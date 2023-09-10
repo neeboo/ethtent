@@ -22,7 +22,10 @@ itertools = { workspace = true }
 ego_types = { workspace = true }
 ego_lib = { workspace = true }
 ego_macros = { workspace = true }
+ego_utils = { workspace = true }
+ego_backup = { workspace = true }
 hex = { workspace = true }
+ic-web3 = { workspace = true }
 
 [features]
 default = []
