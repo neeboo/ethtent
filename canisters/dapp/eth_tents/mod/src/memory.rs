@@ -3,7 +3,8 @@ use ic_stable_structures::{
     DefaultMemoryImpl, RestrictedMemory, StableBTreeMap, StableCell,
 };
 
-use crate::types::*;
+use crate::rpc::stable_state::StableState;
+use crate::types::{IntentWalletConfig, UserProfile, UserWallet};
 use std::cell::RefCell;
 
 const USER_PROFILE_MEM_ID: MemoryId = MemoryId::new(0);

@@ -1,8 +1,8 @@
 use ego_macros::{inject_app_info, inject_cycle_info, inject_ego_data};
 
 use crate::memory::{CONFIG, WALLET_CONFIG};
-use crate::types::otc_wallet_config::OtcWalletConfig;
-use crate::types::stable_state::StableState;
+use crate::rpc::stable_state::StableState;
+use crate::types::IntentWalletConfig;
 use ego_backup::inject_backup_data;
 use std::cell::RefCell;
 
@@ -22,22 +22,9 @@ fn on_canister_added(name: &str, canister_id: Principal) {
     );
 }
 
-/// Preupdate hook for stable state, we don't need stable save anymore
-/// use memory to save state
-/// ciborium as a serilizer to make state save more efficient
-/// and use memory to manage all states, see crate::memory
-/// here we use upgrades_memory as the upgrades hook management.
-/// we use bytes len as the first 4 bytes to save the state length
-/// and then save the state bytes
 pub fn pre_upgrade() {
-    info_log_add("enter example pre_upgrade");
-
     // composite StableState
-    let stable_state = StableState {
-        users: Some(users_pre_upgrade()),
-        registry: Some(registry_pre_upgrade()),
-        app_info: Some(app_info_pre_upgrade()),
-    };
+    let stable_state = StableState::load();
 
     CONFIG.with(|config| {
         config
@@ -45,38 +32,29 @@ pub fn pre_upgrade() {
             .set(stable_state)
             .expect("persist stable state failed");
     });
+
+    let wallet_config = IntentWalletConfig::load();
+
+    WALLET_CONFIG.with(|config| {
+        config
+            .borrow_mut()
+            .set(wallet_config)
+            .expect("persist wallet config failed");
+    });
 }
 
-/// Postupgrade hook is used to restore state
-/// we use upgrades_memory to restore state
-/// first read the state length from the first 4 bytes
-/// and then read the state bytes
 pub fn post_upgrade() {
-    info_log_add("enter example post_upgrade");
-
     CONFIG.with(|config| {
         let config_borrow = config.borrow();
         let state = config_borrow.get();
 
-        match &state.users {
-            None => {}
-            Some(users) => {
-                users_post_upgrade(users.clone());
-            }
-        }
+        StableState::restore(state.to_owned());
+    });
 
-        match &state.registry {
-            None => {}
-            Some(registry) => {
-                registry_post_upgrade(registry.clone());
-            }
-        }
+    WALLET_CONFIG.with(|config| {
+        let config_borrow = config.borrow();
+        let state = config_borrow.get();
 
-        match &state.app_info {
-            None => {}
-            Some(app_info) => {
-                app_info_post_upgrade(app_info.clone());
-            }
-        }
+        IntentWalletConfig::restore(state.to_owned());
     });
 }
