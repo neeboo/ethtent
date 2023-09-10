@@ -8,7 +8,17 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import "hardhat/console.sol";
+// import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
+// import "hardhat/console.sol";
+
+interface IAxelarGateway {
+    function sendToken(
+        string calldata destinationChain,
+        string calldata destinationAddress,
+        string calldata symbol,
+        uint256 amount
+    ) external; 
+}
 
 contract vault is Ownable,AccessControl,ReentrancyGuard {
 
@@ -18,18 +28,21 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
     uint256 public fee;
     address public feeWallet ;
     IUniswapV2Router02 public uniswapRouter;
+    IAxelarGateway public axelarGateway;
 
     mapping(uint256 => bool) public taskStatus;
     mapping(uint256 => uint256) public taskProgress;
 
     constructor(
         address _routerAddress,
-        uint256 _fee
+        uint256 _fee,
+        address _axelarGateway
     ){
         require(_fee < 10000,"_fee < 100000");
         fee = _fee;
         feeWallet = msg.sender;
         uniswapRouter = IUniswapV2Router02(_routerAddress);
+        axelarGateway = IAxelarGateway(_axelarGateway);
         _setupRole(ADMIN_ROLE, msg.sender);
     }
 
@@ -67,8 +80,9 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
      * @dev This function is used to perform scheduled investments across different chains,
      * including signature validation, permission confirmation, and handling transfers.
      * @param intender The initiator of the intention, combined with internal verification for rights.
-     * @param toChainId The chainId of the target chain.
+     * @param destinationChain The destinationChain of the target chain.
      * @param recipient The user's address on the target chain where assets are received.
+     * @param tokenOutSymbol tokenOut symbol 
      * @param tokenIn The address of the token to be sold in the scheduled investment (source chain address, such as DAI on Polygon).
      * @param tokenOut The address of the token to be purchased in the scheduled investment (source chain address, such as WETH on Polygon).
      * @param amount The maximum amount for each scheduled investment.
@@ -78,10 +92,12 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
      * @param taskId The task ID, a unique ID for this intention.
      * @param signatureHash The signature.
      */
+
     function executed(
         address intender,         
-        uint256 toChainId,         
-        address recipient,        
+        string calldata destinationChain,        
+        string calldata recipient,        
+        string calldata tokenOutSymbol,
         address tokenIn,           
         address tokenOut,         
         uint256 amount,           
@@ -92,9 +108,7 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
         bytes memory signatureHash 
     ) public onlyAdminOrModerator nonReentrant {
 
-        // step 0 todo
-        // checkSignAndIntender
-        
+        // step 0 todo checkSignAndIntender
         require( !taskStatus[taskId], "task has been completed ");
         require( taskProgress[taskId] == num, "The number of tasks has been used");
         require(
@@ -110,34 +124,37 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
         }
 
         transferTokensToContract(tokenIn,amount,intender);
+        uint256 amountSwaped = swapTokens(tokenIn,tokenOut,amount,0);
 
-        uint256 amountFee = amount * fee / 10000;
-        uint256 amountEnd = amount - amountFee;
-
-        swapTokens(tokenIn,tokenOut,amountEnd,0);
-
-        IERC20(tokenIn).transfer(feeWallet,amountFee);
-        
         // bridge
+        IERC20(tokenOut).approve(address(axelarGateway),amountSwaped);
+        axelarGateway.sendToken(
+            destinationChain,
+            recipient,
+            tokenOutSymbol,
+            amountSwaped
+        );
     }
 
     function swapTokens(
         address _tokenIn,
         address _tokenOut,
-        uint256 amountIn,
+        uint256 amount,
         uint256 minAmountOut
-    ) internal {
-        IERC20 tokenIn = IERC20(_tokenIn);
-        IERC20 tokenOut = IERC20(_tokenOut);
-        tokenIn.approve(address(uniswapRouter), amountIn);
+    ) internal returns(uint256){
+        uint256 amountFee = amount * fee / 10000;
+        uint256 amountIn = amount - amountFee;
+        IERC20(_tokenIn).approve(address(uniswapRouter), amountIn);
         
         uniswapRouter.swapExactTokensForTokens(
             amountIn,
             minAmountOut,
-            getPathForTokenSwap(address(tokenIn),address(tokenOut)),
+            getPathForTokenSwap(_tokenIn,_tokenOut),
             address(this),
             block.timestamp
         ); 
+        IERC20(_tokenIn).transfer(feeWallet,amountFee);
+        return IERC20(_tokenOut).balanceOf(address(this));
     }
 
     function transferTokensToContract(address token,uint256 amount,address intender) internal {
