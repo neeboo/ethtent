@@ -9,6 +9,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "./ui/checkbox";
 
 interface DialogDemoProps {
     available: boolean;
@@ -30,6 +31,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
     const [selectedRotationId, setSelectedRotationId] = useState<number | null>(null);
     const [dca, setDCA] = useState<DCAprop | null>(null);
     const [commissionCharge, setCommissionCharge] = useState<number | null>(null);
+    const [limitOrder, setLimitOrder] = useState<boolean>(false);
     const [open, setOpen] = React.useState(false);
 
 
@@ -137,7 +139,28 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                                 ))}
                             </div>
                         </div>
-
+                        <div className="mt-6 flex items-center space-x-2">
+                            <Checkbox onClick={
+                                () => {
+                                    setLimitOrder(!limitOrder);
+                                }
+                            } id="terms" />
+                            <label
+                                htmlFor="terms"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Limit Order
+                            </label>
+                        </div>
+                        {limitOrder ? <div className="mt-6">
+                            <div className="mb-1 text-xs font-normal text-black">Limit Price</div>
+                            <Input value={open ? dca?.amount : 0} onChange={
+                                (e) => {
+                                    setDCA({ ...dca, amount: parseInt(e.target.value) })
+                                    setCommissionCharge(parseInt(e.target.value) * 0.003)
+                                }
+                            }></Input>
+                        </div> : null}
                     </div>
 
 
