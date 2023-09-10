@@ -20,8 +20,6 @@ export type Result_4 = { 'Ok' : Array<LogEntry> } |
   { 'Err' : string };
 export type Result_5 = { 'Ok' : [] | [Array<[Principal, string]>] } |
   { 'Err' : string };
-export interface UserProfile { 'user_name' : string, 'user_id' : number }
-export interface UserWallet { 'balance' : number, 'user_id' : number }
 export interface Version {
   'major' : number,
   'minor' : number,
@@ -60,12 +58,5 @@ export interface _SERVICE {
   'ego_user_list' : ActorMethod<[], Result_5>,
   'ego_user_remove' : ActorMethod<[Principal], Result_1>,
   'ego_user_set' : ActorMethod<[Array<Principal>], Result_1>,
-  'get_all_users' : ActorMethod<[], Array<UserProfile>>,
-  'get_all_wallets' : ActorMethod<[], Array<UserWallet>>,
-  'get_user' : ActorMethod<[number], [] | [UserProfile]>,
-  'get_wallet' : ActorMethod<[number], [] | [UserWallet]>,
-  'insert_user' : ActorMethod<[number, string], UserProfile>,
-  'insert_wallet' : ActorMethod<[number, number], UserWallet>,
-  'testUnwrap' : ActorMethod<[[] | [Principal]], string>,
   'whoAmI' : ActorMethod<[], Principal>,
 }

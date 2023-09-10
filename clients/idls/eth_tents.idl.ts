@@ -27,14 +27,6 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Text))),
     'Err' : IDL.Text,
   });
-  const UserProfile = IDL.Record({
-    'user_name' : IDL.Text,
-    'user_id' : IDL.Nat16,
-  });
-  const UserWallet = IDL.Record({
-    'balance' : IDL.Nat32,
-    'user_id' : IDL.Nat16,
-  });
   return IDL.Service({
     'ego_app_info_get' : IDL.Func([], [Result], ['query']),
     'ego_app_info_update' : IDL.Func(
@@ -73,13 +65,6 @@ export const idlFactory = ({ IDL }) => {
     'ego_user_list' : IDL.Func([], [Result_5], []),
     'ego_user_remove' : IDL.Func([IDL.Principal], [Result_1], []),
     'ego_user_set' : IDL.Func([IDL.Vec(IDL.Principal)], [Result_1], []),
-    'get_all_users' : IDL.Func([], [IDL.Vec(UserProfile)], ['query']),
-    'get_all_wallets' : IDL.Func([], [IDL.Vec(UserWallet)], ['query']),
-    'get_user' : IDL.Func([IDL.Nat16], [IDL.Opt(UserProfile)], ['query']),
-    'get_wallet' : IDL.Func([IDL.Nat16], [IDL.Opt(UserWallet)], ['query']),
-    'insert_user' : IDL.Func([IDL.Nat16, IDL.Text], [UserProfile], []),
-    'insert_wallet' : IDL.Func([IDL.Nat16, IDL.Nat32], [UserWallet], []),
-    'testUnwrap' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Text], []),
     'whoAmI' : IDL.Func([], [IDL.Principal], []),
   });
 };
