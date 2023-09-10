@@ -1,0 +1,23 @@
+{
+	"name": "worker",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"build": "swc src -d dist",
+		"start": "swc src -d dist && node dist/worker.js"
+	},
+	"dependencies": {
+		"@dfinity/agent": "^0.15.6",
+		"@dfinity/candid": "^0.15.6",
+		"@dfinity/identity": "^0.15.6",
+		"@dfinity/principal": "^0.15.6",
+		"@ego-js/cli": "^2.2.45",
+		"@ego-js/core": "^2.2.45",
+		"@ego-js/utils": "^2.2.45",
+		"@types/express": "^4.17.17",
+		"@types/node-cron": "^3.0.7",
+		"ethers": "^5.7.2",
+		"express": "^4.18.2",
+		"node-cron": "^3.0.2"
+	}
+}

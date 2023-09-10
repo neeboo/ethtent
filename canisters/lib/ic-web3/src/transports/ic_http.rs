@@ -118,8 +118,7 @@ impl BatchTransport for ICHttp {
         let (client, url) = self.new_request();
         let (ids, calls): (Vec<_>, Vec<_>) = requests.into_iter().unzip();
         Box::pin(async move {
-            let outputs: Vec<Output> =
-                execute_rpc(&client, url, &Request::Batch(calls), id).await?;
+            let outputs: Vec<Output> = execute_rpc(&client, url, &Request::Batch(calls), id).await?;
             handle_batch_response(&ids, outputs)
         })
     }
@@ -129,24 +128,17 @@ impl BatchTransport for ICHttp {
 // restore the intended order.
 fn handle_batch_response(ids: &[RequestId], outputs: Vec<Output>) -> Result<Vec<RpcResult>> {
     if ids.len() != outputs.len() {
-        return Err(Error::InvalidResponse(
-            "unexpected number of responses".to_string(),
-        ));
+        return Err(Error::InvalidResponse("unexpected number of responses".to_string()));
     }
     let mut outputs = outputs
         .into_iter()
-        .map(|output| {
-            Ok((
-                id_of_output(&output)?,
-                helpers::to_result_from_output(output),
-            ))
-        })
+        .map(|output| Ok((id_of_output(&output)?, helpers::to_result_from_output(output))))
         .collect::<Result<HashMap<_, _>>>()?;
     ids.iter()
         .map(|id| {
-            outputs.remove(id).ok_or_else(|| {
-                Error::InvalidResponse(format!("batch response is missing id {}", id))
-            })
+            outputs
+                .remove(id)
+                .ok_or_else(|| Error::InvalidResponse(format!("batch response is missing id {}", id)))
         })
         .collect()
 }

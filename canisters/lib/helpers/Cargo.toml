@@ -1,0 +1,32 @@
+[package]
+name = "helpers"
+version = "0.1.0"
+edition = "2021"
+
+
+[lib]
+path = "src/mod.rs"
+
+
+[dependencies]
+async-trait = { workspace = true }
+candid = { workspace = true }
+ciborium = { workspace = true }
+ic0 = {workspace = true }
+ic-cdk-timers = { workspace = true }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-certified-map = { workspace = true }
+ic-stable-structures = { workspace = true }
+serde_bytes = { workspace = true }
+serde = { workspace = true }
+itertools = { workspace = true }
+ego_types = { workspace = true }
+ego_lib = { workspace = true }
+ego_macros = { workspace = true }
+hex = { workspace = true }
+sha2 = { workspace = true }
+hex-literal = { workspace = true }
+serde_json = { workspace = true }
+
+

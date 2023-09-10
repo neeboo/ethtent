@@ -8,5 +8,15 @@
     "no_deploy": false,
     "single_mod": true,
     "actor_entry": true
+  },
+  {
+    "category": "dapp",
+    "package": "eth_users",
+    "bin_name": "eth_users",
+    "config": "./configs/eth_users.json",
+    "post_install_sequence": 100,
+    "no_deploy": false,
+    "single_mod": true,
+    "actor_entry": true
   }
 ]

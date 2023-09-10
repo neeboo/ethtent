@@ -1,15 +1,22 @@
 [workspace]
-members = ["dapp/eth_tents/actor", "dapp/eth_tents/mod"]
+members = [
+    "dapp/eth_tents/actor",
+    "dapp/eth_tents/mod",
+    "dapp/eth_users/actor",
+    "dapp/eth_users/mod",
+]
 
 [workspace.dependencies]
 candid = "0.9.2"
 ic-cdk = { version = "0.10.0" }
 ic-cdk-timers = "0.4.0"
 ic-cdk-macros = "0.7.1"
+ic0 = "0.18"
 serde = "1.0"
 serde_json = "1.0"
 serde_bytes = "0.11"
 serde_cbor = "0.11.2"
+
 ic-ledger-types = "0.7.0"
 ic-stable-structures = "0.5.4"
 ic-certified-map = "0.4.0"
@@ -20,7 +27,7 @@ ego_macros = { git = "https://github.com/EgoDevs/ego", branch = "main" }
 ego_lib = { git = "https://github.com/EgoDevs/ego", branch = "main" }
 ego_inner_rpc = { git = "https://github.com/EgoDevs/ego", branch = "main" }
 ego_utils = { path = "../../ego/canisters/lib/ego_utils" }
-ego_backup = {path="../../astrox-rs/ego_backup"}
+ego_backup = { path = "../../astrox-rs/ego_backup" }
 
 
 async-trait = "0.1.57"
@@ -40,7 +47,8 @@ sha2 = "0.10.6"
 multibase = "0.9.1"
 
 
-ic-web3 = {path="lib/ic-web3"}
+ic-web3 = { path = "lib/ic-web3" }
+helpers = { path = "lib/helpers" }
 
 [profile.release]
 lto = true

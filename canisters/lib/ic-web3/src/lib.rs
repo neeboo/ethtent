@@ -12,7 +12,6 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 #![allow(unused_imports)]
-
 // select! in WS transport
 #![recursion_limit = "256"]
 
@@ -34,10 +33,10 @@ pub mod api;
 pub mod confirm;
 pub mod contract;
 pub mod error;
+pub mod ic;
 pub mod signing;
 pub mod transports;
 pub mod types;
-pub mod ic;
 // pub mod tx_helpers;
 
 pub use crate::{

@@ -9,6 +9,8 @@ use ego_types::app_info::AppInfo;
 #[allow(unused_imports)]
 use eth_tents_mod::types::*;
 #[allow(unused_imports)]
+use eth_users_mod::types::GetDelegationRequest;
+#[allow(unused_imports)]
 use std::collections::BTreeMap;
 
 candid::export_service!();

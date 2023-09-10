@@ -12,7 +12,8 @@ use ego_macros::{inject_app_info_api, inject_ego_api};
 // ic_cdk
 use candid::candid_method;
 use candid::Principal;
-use ic_cdk::caller;
+use ic_cdk::api::call::RejectionCode;
+use ic_cdk::{api, caller};
 use ic_cdk_macros::*;
 
 // ------------------
@@ -22,6 +23,8 @@ use ic_cdk_macros::*;
 // ------------------
 // injected macros
 use eth_tents_mod::state::*;
+use eth_tents_mod::types::*;
+use eth_users_mod::types::{GetDelegationRequest, GetDelegationResponse};
 
 // ------------------
 //
@@ -57,6 +60,50 @@ pub fn post_upgrade() {
 pub fn who_am_i() -> Principal {
     ic_cdk::api::caller()
 }
+
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "register_user")]
+#[candid_method(update, rename = "register_user")]
+pub async fn register_user(
+    req: GetDelegationRequest,
+    canister: Principal,
+) -> Result<(Principal, String), String> {
+    match get_valid_user(canister, req.clone()).await {
+        Ok(_) => eth_tents_mod::intent::IntentService::add_user(caller(), req.user_address.clone()),
+        Err(_) => Err("User is not permited".to_string()),
+    }
+}
+
+async fn get_valid_user(
+    canister: Principal,
+    req: GetDelegationRequest,
+) -> Result<GetDelegationResponse, String> {
+    let call_result = api::call::call(canister, "get_delegation", (req,)).await
+        as Result<(GetDelegationResponse,), (RejectionCode, String)>;
+    match call_result {
+        Ok(r) => Ok(r.0),
+        Err(e) => Err(format!("Remote Fetch err:{}", e.1)),
+    }
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "add_user_intent", guard = "eth_user_guard")]
+#[candid_method(update, rename = "add_user_intent")]
+pub fn add_user_intent(user_intent: UserIntents) -> Result<UserIntents, String> {
+    eth_tents_mod::intent::IntentService::add_user_intent(user_intent)
+}
+
+#[inline(always)]
+pub fn eth_user_guard() -> Result<(), String> {
+    let caller = ic_cdk::api::caller();
+    let ret = eth_tents_mod::intent::IntentService::get_user_by_principal(caller);
+    if ret.is_some() {
+        Ok(())
+    } else {
+        ic_cdk::api::trap(&format!("{} unauthorized", caller));
+    }
+}
+
 //
 // #[cfg(not(feature = "no_candid"))]
 // #[update(name = "testUnwrap")]

@@ -1,0 +1,36 @@
+[package]
+name = "eth_users_mod"
+version = "0.1.0"
+edition = "2021"
+
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+async-trait =  { workspace = true }
+candid =  { workspace = true }
+ciborium = {workspace = true}
+ic-cdk =  { workspace = true }
+ic-cdk-macros =  { workspace = true }
+ic-certified-map =  { workspace = true }
+ic-stable-structures = { workspace = true }
+ic-cdk-timers= {workspace=true}
+serde_bytes =  { workspace = true }
+serde =  { workspace = true }
+serde_json =  { workspace = true }
+serde_cbor = {workspace = true}
+itertools=  { workspace = true }
+ego_types =  { workspace = true }
+ego_lib =  { workspace = true }
+ego_macros =  { workspace = true }
+hex = { workspace = true }
+sha2 = {workspace =true}
+
+
+base64 = "0.21.2"
+byteorder = "1.4.3"
+k256 = { version = "0.11.4", default-features = false, features = ["ecdsa", "sha256","pem","keccak256" ] }
+rand = { version = "0.8.4", features = ["std_rng"], default-features = false}
+siwe = { git = "https://github.com/domwoe/siwe-rs" }
+time = { version = "0.3.15", default-features = false }

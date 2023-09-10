@@ -1,13 +1,15 @@
+use crate::rpc::stable_state::StableState;
+use crate::types::{AddressString, IntentWalletConfig, UserID, UserIntents};
+
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     DefaultMemoryImpl, RestrictedMemory, StableBTreeMap, StableCell,
 };
-
-use crate::rpc::stable_state::StableState;
-use crate::types::{AddressString, IntentWalletConfig, UserIntents};
 use std::cell::RefCell;
 
-const USER_INTENT_MEM_ID: MemoryId = MemoryId::new(0);
+const USER_PRINCIPAL_MEM_ID: MemoryId = MemoryId::new(0);
+const USER_INTENT_MEM_ID: MemoryId = MemoryId::new(1);
+
 const METADATA_PAGES: u64 = 16;
 
 const WALLET_CONFIG_PAGES: u64 = 128;
@@ -24,7 +26,14 @@ thread_local! {
 
     pub static WALLET_CONFIG: RefCell<StableCell<IntentWalletConfig, RM>> = RefCell::new(StableCell::init(RM::new(DefaultMemoryImpl::default(), METADATA_PAGES..WALLET_CONFIG_PAGES), IntentWalletConfig::default()).expect("failed to initialize the config cell"));
 
-    pub static INTENTS: RefCell<StableBTreeMap<AddressString, UserIntents, VM>> = MEMORY_MANAGER.with(|mm| {
+     pub static USERS: RefCell<StableBTreeMap<UserID, AddressString, VM>> = MEMORY_MANAGER.with(|mm| {
+        RefCell::new(StableBTreeMap::init(mm.borrow().get(USER_PRINCIPAL_MEM_ID)))
+    });
+
+
+    pub static INTENTS: RefCell<StableBTreeMap<[u8;8], UserIntents, VM>> = MEMORY_MANAGER.with(|mm| {
         RefCell::new(StableBTreeMap::init(mm.borrow().get(USER_INTENT_MEM_ID)))
     });
+
+
 }

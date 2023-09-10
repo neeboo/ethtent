@@ -5,12 +5,12 @@ use crate::{
     confirm,
     contract::tokens::{Detokenize, Tokenize},
     futures::Future,
+    ic::KeyInfo,
     types::{
         AccessList, Address, BlockId, Bytes, CallRequest, FilterBuilder, TransactionCondition, TransactionReceipt,
         TransactionRequest, H256, U256, U64,
     },
     Transport,
-    ic::KeyInfo,
 };
 use std::{collections::HashMap, hash::Hash, time};
 

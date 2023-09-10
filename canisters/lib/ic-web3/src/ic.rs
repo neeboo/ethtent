@@ -52,13 +52,12 @@ pub async fn get_public_key(
 
 /// convert compressed public key to ethereum address
 pub fn pubkey_to_address(pubkey: &[u8]) -> Result<Address, String> {
-    let uncompressed_pubkey =
-        match PublicKey::parse_slice(pubkey, Some(PublicKeyFormat::Compressed)) {
-            Ok(key) => key.serialize(),
-            Err(_) => {
-                return Err("uncompress public key failed: ".to_string());
-            }
-        };
+    let uncompressed_pubkey = match PublicKey::parse_slice(pubkey, Some(PublicKeyFormat::Compressed)) {
+        Ok(key) => key.serialize(),
+        Err(_) => {
+            return Err("uncompress public key failed: ".to_string());
+        }
+    };
     let hash = signing::keccak256(&uncompressed_pubkey[1..65]);
     let mut result = [0u8; 20];
     result.copy_from_slice(&hash[12..]);
@@ -87,11 +86,7 @@ pub async fn get_eth_addr(
 }
 
 /// use ic's threshold ecdsa to sign a message
-pub async fn ic_raw_sign(
-    message: Vec<u8>,
-    derivation_path: Vec<Vec<u8>>,
-    key_name: String,
-) -> Result<Vec<u8>, String> {
+pub async fn ic_raw_sign(message: Vec<u8>, derivation_path: Vec<Vec<u8>>, key_name: String) -> Result<Vec<u8>, String> {
     assert!(message.len() == 32);
 
     let key_id = EcdsaKeyId {

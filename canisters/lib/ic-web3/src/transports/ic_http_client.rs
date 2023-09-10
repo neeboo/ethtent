@@ -3,8 +3,7 @@
 use candid::CandidType;
 use candid::{candid_method, Principal};
 use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse,
-    TransformContext, TransformFunc,
+    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformContext, TransformFunc,
 };
 use jsonrpc_core::Request;
 use serde::{self, Deserialize, Serialize};
@@ -80,9 +79,7 @@ impl ICHttpClient {
         match http_request(request, cycles).await {
             Ok((result,)) => Ok(result.body),
             Err((r, m)) => {
-                let message = format!(
-                    "The http_request resulted into error. RejectionCode: {r:?}, Error: {m}"
-                );
+                let message = format!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
                 ic_cdk::api::print(message.clone());
                 Err(message)
             }
@@ -101,15 +98,8 @@ impl ICHttpClient {
             value: "application/json".to_string(),
         }];
 
-        self.request(
-            url,
-            HttpMethod::GET,
-            request_headers,
-            payload,
-            max_resp,
-            cycles,
-        )
-        .await
+        self.request(url, HttpMethod::GET, request_headers, payload, max_resp, cycles)
+            .await
     }
 
     pub async fn post(
@@ -124,14 +114,7 @@ impl ICHttpClient {
             value: "application/json".to_string(),
         }];
 
-        self.request(
-            url,
-            HttpMethod::POST,
-            request_headers,
-            payload,
-            max_resp,
-            cycles,
-        )
-        .await
+        self.request(url, HttpMethod::POST, request_headers, payload, max_resp, cycles)
+            .await
     }
 }
