@@ -1,9 +1,9 @@
 [
   {
     "category": "dapp",
-    "package": "cross_dca",
-    "bin_name": "cross_dca",
-    "config": "./configs/cross_dca.json",
+    "package": "eth_tents",
+    "bin_name": "eth_tents",
+    "config": "./configs/eth_tents.json",
     "post_install_sequence": 100,
     "no_deploy": false,
     "single_mod": true,

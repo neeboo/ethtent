@@ -1,5 +1,5 @@
 [package]
-name = "cross_dca"
+name = "eth_tents"
 version = "0.1.0"
 edition = "2021"
 
@@ -23,7 +23,7 @@ ego_types = { workspace = true }
 ego_lib = { workspace = true }
 ego_macros = { workspace = true }
 hex = { workspace = true }
-cross_dca_mod = { path = "../mod" }
+eth_tents_mod = { path = "../mod" }
 
 [features]
 default = ["build_candid"]

@@ -3,11 +3,11 @@ pub mod actor;
 #[allow(unused_imports)]
 use candid::Principal;
 #[allow(unused_imports)]
-use cross_dca_mod::types::*;
-#[allow(unused_imports)]
 use ego_types::app::{AppId, Version};
 #[allow(unused_imports)]
 use ego_types::app_info::AppInfo;
+#[allow(unused_imports)]
+use eth_tents_mod::types::*;
 #[allow(unused_imports)]
 use std::collections::BTreeMap;
 

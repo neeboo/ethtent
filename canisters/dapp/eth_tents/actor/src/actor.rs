@@ -21,8 +21,8 @@ use ic_cdk_macros::*;
 //
 // ------------------
 // injected macros
-use cross_dca_mod::state::*;
-use cross_dca_mod::types::{Example, UserProfile, UserWallet};
+use eth_tents_mod::state::*;
+use eth_tents_mod::types::{Example, UserProfile, UserWallet};
 
 // ------------------
 //
@@ -38,18 +38,18 @@ inject_app_info_api!();
 #[candid_method(init, rename = "init")]
 fn canister_init() {
     let caller = caller();
-    info_log_add(format!("cross_dca: init, caller is {}", caller.clone()).as_str());
+    info_log_add(format!("eth_tents: init, caller is {}", caller.clone()).as_str());
     owner_add(caller);
 }
 
 #[pre_upgrade]
 pub fn pre_upgrade() {
-    cross_dca_mod::state::pre_upgrade()
+    eth_tents_mod::state::pre_upgrade()
 }
 
 #[post_upgrade]
 pub fn post_upgrade() {
-    cross_dca_mod::state::post_upgrade();
+    eth_tents_mod::state::post_upgrade();
 }
 
 #[cfg(not(feature = "no_candid"))]
@@ -84,7 +84,7 @@ pub fn get_user(user_id: u16) -> Option<UserProfile> {
 #[query(name = "get_all_users", guard = "owner_guard")]
 #[candid_method(query, rename = "get_all_users")]
 pub fn get_all_users() -> Vec<UserProfile> {
-    info_log_add("cross_dca: get_all_users");
+    info_log_add("eth_tents: get_all_users");
     Example::get_all_users()
 }
 
@@ -106,6 +106,6 @@ pub fn get_wallet(user_id: u16) -> Option<UserWallet> {
 #[query(name = "get_all_wallets", guard = "owner_guard")]
 #[candid_method(query, rename = "get_all_wallets")]
 pub fn get_all_wallets() -> Vec<UserWallet> {
-    info_log_add("cross_dca: get_all_wallets");
+    info_log_add("eth_tents: get_all_wallets");
     Example::get_all_wallets()
 }
