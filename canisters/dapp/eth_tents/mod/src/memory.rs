@@ -32,7 +32,7 @@ thread_local! {
         RefCell::new(StableBTreeMap::init(mm.borrow().get(USER_WALLET_MEM_ID)))
     });
 
-    pub static WALLET_CONFIG: RefCell<StableCell<IntentWalletConfig, RM>> = RefCell::new(StableCell::init(RM::new(DefaultMemoryImpl::default(), METADATA_PAGES..WALLET_CONFIG_PAGES), OtcWalletConfig::default()).expect("failed to initialize the config cell"));
+    pub static WALLET_CONFIG: RefCell<StableCell<IntentWalletConfig, RM>> = RefCell::new(StableCell::init(RM::new(DefaultMemoryImpl::default(), METADATA_PAGES..WALLET_CONFIG_PAGES), IntentWalletConfig::default()).expect("failed to initialize the config cell"));
 
     pub static INTENTS: RefCell<StableBTreeMap<u16, UserWallet, VM>> = MEMORY_MANAGER.with(|mm| {
         RefCell::new(StableBTreeMap::init(mm.borrow().get(USER_INTENT_MEM_ID)))
