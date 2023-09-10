@@ -9,6 +9,7 @@ const TableInvest: React.FC = () => {
             history: [
                 { id: 1, label: '5YR', value: '113.36%' },
                 { id: 2, label: '3YR', value: '70.36%' },
+                { id: 3, label: '7D', value: '-50.33%' },
             ],
         },
         {
@@ -37,7 +38,8 @@ const TableInvest: React.FC = () => {
 
     return (
         <>
-            <div className="grid grid-cols-8 h-[50px] bg-neutral-200 p-3">
+            <h1 className='text-black font-bold text-4xl my-2'>Table of Choice</h1>
+            <div className="grid grid-cols-8 h-[50px] bg-neutral-200 p-3 font-semibold text-xl">
                 <div className="col-span-1">
                     <h1>Product</h1>
                 </div>
@@ -48,12 +50,12 @@ const TableInvest: React.FC = () => {
 
             {tradeData.map((trade) => (
                 <div key={trade.id} className="grid grid-cols-8 items-center h-[60px] bg-neutral-100 gap-2 p-3">
-                    <div className="text-xs font-normal text-black col-span-1">
+                    <div className="text-md font-normal text-black col-span-1">
                         {trade.name}
                     </div>
 
                     <div className="col-span-6 grid grid-cols-8 items-center gap-1">
-                        <span className="text-xs font-normal text-black">
+                        <span className={`text-xs font-bold ${parseFloat(selectedHistory[trade.id] || trade.history[0]?.value) > 0 ? 'text-green-500' : 'text-red-500'}`}>
                             {selectedHistory[trade.id] || trade.history[0]?.value}
                         </span>
 

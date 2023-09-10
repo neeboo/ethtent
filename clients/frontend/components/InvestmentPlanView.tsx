@@ -14,14 +14,10 @@ const InvestmentPlanView: React.FC = () => {
 
     return (
 
-
-        <section className='h-min-[1000px]'>
-            <h1 className='text-black'>Investment Plan</h1>
+        <section className='my-4'>
+            <h1 className='text-black font-bold text-4xl m-2'>Investment Plan</h1>
             <InvestmentPlan {...testprop} />
         </section>
-
-
-
     )
 }
 
