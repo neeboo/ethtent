@@ -97,10 +97,6 @@ impl IntentWalletConfig {
     pub fn load() -> Self {
         WALLET_CONFIG.with(|s| s.borrow().get().clone())
     }
-
-    pub fn restore(state: Self) {
-        WALLET_CONFIG.with(|s| s.borrow_mut().set(state).unwrap());
-    }
 }
 
 impl Storable for IntentWalletConfig {

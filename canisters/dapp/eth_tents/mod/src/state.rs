@@ -48,13 +48,6 @@ pub fn post_upgrade() {
         let config_borrow = config.borrow();
         let state = config_borrow.get();
 
-        StableState::restore(state.to_owned());
-    });
-
-    WALLET_CONFIG.with(|config| {
-        let config_borrow = config.borrow();
-        let state = config_borrow.get();
-
-        IntentWalletConfig::restore(state.to_owned());
+        StableState::restore(state.clone());
     });
 }
