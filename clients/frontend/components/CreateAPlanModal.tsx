@@ -138,30 +138,31 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
   async function submitDCAToWorker() {
     console.log({ dca });
     console.log('submitDCA');
-    const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
 
-    const added = await actor.add_user_intent({
-      is_finished: false,
-      user_address: address!,
-      intent_item: {
-        num: BigInt(0),
-        tokenIn: daiAddress!,
-        intender: address!,
-        tokenOut: ausd!,
-        feeRate: BigInt(30),
-        recipient: address!,
-        taskId: BigInt(0),
-        signatureHash: '0x',
-        expiration: BigInt(Math.ceil(Date.now() / 1000) + 1 * 3600 * 24),
-        order_detail: [],
-        to_chain_id: BigInt(0),
-        tokenOutSymbol: 'aUSDC',
-        destinationChain: 'ethereum-2',
-        amount: BigInt(5000000),
-        intent_id: [],
-      },
-      intent_id: [],
-    });
+    // const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
+
+    // const added = await actor.add_user_intent({
+    //   is_finished: false,
+    //   user_address: address!,
+    //   intent_item: {
+    //     num: BigInt(0),
+    //     tokenIn: daiAddress!,
+    //     intender: address!,
+    //     tokenOut: ausd!,
+    //     feeRate: BigInt(30),
+    //     recipient: address!,
+    //     taskId: BigInt(0),
+    //     signatureHash: '0x',
+    //     expiration: BigInt(Math.ceil(Date.now() / 1000) + 1 * 3600 * 24),
+    //     order_detail: [],
+    //     to_chain_id: BigInt(0),
+    //     tokenOutSymbol: 'aUSDC',
+    //     destinationChain: 'ethereum-2',
+    //     amount: BigInt(5000000),
+    //     intent_id: [],
+    //   },
+    //   intent_id: [],
+    // });
   }
 
   function resetForm() {
