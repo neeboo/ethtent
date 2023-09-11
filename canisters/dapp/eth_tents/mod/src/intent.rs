@@ -1,8 +1,8 @@
 use crate::memory::{INTENTS, USERS};
 use crate::state::info_log_add;
 use crate::types::{
-    AddressInfo, AddressString, ChainType, EcdsaKeyIds, IntentWalletConfig, OrderType,
-    PlatformDetail, RoleFilter, SendEVMRequest, UserID, UserIntents, WalletError,
+    AddressInfo, AddressString, ChainType, EcdsaKeyIds, IntentItem, IntentWalletConfig, OrderType,
+    PlatformDetail, SendEVMRequest, UserID, UserIntents, WalletError,
 };
 use candid::Principal;
 use helpers::hash::hash_string;
@@ -49,16 +49,21 @@ impl IntentService {
 
     pub fn add_user_intent(intents: UserIntents) -> Result<UserIntents, String> {
         let intent_id = get_intent_id(intents.user_address.clone());
+        let to_add = UserIntents {
+            intent_id: Some(intent_id.0.clone()),
+            intent_item: IntentItem {
+                intent_id: Some(intent_id.0.clone()),
+                ..intents.intent_item
+            },
+            ..intents
+        };
         INTENTS.with(|f| {
             f.borrow_mut()
-                .insert(intent_id.1, intents.clone())
+                .insert(intent_id.1, to_add.clone())
                 .map_or_else(
                     || {
                         info_log_add("add user intent success");
-                        Ok(UserIntents {
-                            intent_id: Some(intent_id.0),
-                            ..intents
-                        })
+                        Ok(to_add.clone())
                     },
                     |_| Err("user address already exists".to_string()),
                 )
@@ -90,8 +95,20 @@ impl IntentService {
         INTENTS.with(|f| f.borrow_mut().remove(&u8_arr))
     }
 
-    pub fn get_all_intents() -> Vec<UserIntents> {
-        INTENTS.with(|f| f.borrow().iter().map(|v| v.1.clone()).collect())
+    pub fn get_all_intents(is_finshed: Option<bool>) -> Vec<UserIntents> {
+        INTENTS.with(|f| {
+            f.borrow()
+                .iter()
+                .map(|v| v.1.clone())
+                .filter(|f| {
+                    return if is_finshed.is_none() {
+                        true
+                    } else {
+                        Some(f.is_finished) == is_finshed
+                    };
+                })
+                .collect()
+        })
     }
 
     pub fn get_key_id(chain_type: ChainType, key_string: String) -> EcdsaKeyIds {

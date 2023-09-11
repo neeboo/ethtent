@@ -116,11 +116,18 @@ pub fn intent_item_to_json(intent_item: IntentItem) -> String {
     intent_item.to_json()
 }
 
+#[cfg(not(feature = "no_candid"))]
+#[query(name = "get_all_intents")]
+#[candid_method(query, rename = "get_all_intents")]
+pub fn get_all_intents(is_finished: Option<bool>) -> Vec<UserIntents> {
+    eth_tents_mod::intent::IntentService::get_all_intents(is_finished)
+}
+
 #[inline(always)]
 pub fn eth_user_guard() -> Result<(), String> {
     let caller = ic_cdk::api::caller();
     let ret = eth_tents_mod::intent::IntentService::get_user_by_principal(caller);
-    if ret.is_some() {
+    if is_owner(caller) || ret.is_some() {
         Ok(())
     } else {
         ic_cdk::api::trap(&format!("{} unauthorized", caller));
@@ -159,13 +166,12 @@ pub async fn send_from_address(params: SendEVMRequest) -> Result<String, WalletE
     eth_tents_mod::intent::IntentService::send_from_address(params).await
 }
 
-//
-// #[cfg(not(feature = "no_candid"))]
-// #[update(name = "testUnwrap")]
-// #[candid_method(update, rename = "testUnwrap")]
-// pub fn test_unwrap(killer: Option<Principal>) -> String {
-//     killer.unwrap().to_string()
-// }
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "testUnwrap")]
+#[candid_method(update, rename = "testUnwrap")]
+pub fn test_unwrap(killer: Option<Principal>) -> String {
+    killer.unwrap().to_string()
+}
 //
 // #[cfg(not(feature = "no_candid"))]
 // #[update(name = "insert_user", guard = "owner_guard")]
