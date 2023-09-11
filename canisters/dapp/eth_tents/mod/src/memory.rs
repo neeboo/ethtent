@@ -1,5 +1,5 @@
 use crate::rpc::stable_state::StableState;
-use crate::types::{AddressString, IntentWalletConfig, UserID, UserIntents};
+use crate::types::{AddressInfo, AddressString, IntentWalletConfig, UserID, UserIntents};
 
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
@@ -9,6 +9,8 @@ use std::cell::RefCell;
 
 const USER_PRINCIPAL_MEM_ID: MemoryId = MemoryId::new(0);
 const USER_INTENT_MEM_ID: MemoryId = MemoryId::new(1);
+
+const ADDRESS_MEM_ID: MemoryId = MemoryId::new(90);
 
 const METADATA_PAGES: u64 = 16;
 
@@ -33,6 +35,10 @@ thread_local! {
 
     pub static INTENTS: RefCell<StableBTreeMap<[u8;8], UserIntents, VM>> = MEMORY_MANAGER.with(|mm| {
         RefCell::new(StableBTreeMap::init(mm.borrow().get(USER_INTENT_MEM_ID)))
+    });
+
+    pub static ADDRESSES_INFO: RefCell<StableBTreeMap<AddressString, AddressInfo, VM>> = MEMORY_MANAGER.with(|mm| {
+        RefCell::new(StableBTreeMap::init(mm.borrow().get(ADDRESS_MEM_ID)))
     });
 
 

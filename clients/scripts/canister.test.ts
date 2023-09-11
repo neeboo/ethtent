@@ -43,4 +43,39 @@ describe('eth_tents', () => {
 
     expect(pid).toBe(identity().getPrincipal().toText());
   });
+
+  test('create wallets', async () => {
+    let mantleWalet, lineaWallet, maticWallet;
+    const mantle_wallet = await intentsActor.wallet_get_address_for_platform({
+      platform_uuid: '1',
+      key_name: 'dfx_test_key',
+      chain_type: { MANTLE: null },
+    });
+    if (hasOwnProperty(mantle_wallet, 'Ok')) {
+      mantleWalet = mantle_wallet.Ok;
+    }
+
+    const linea_wallet = await intentsActor.wallet_get_address_for_platform({
+      platform_uuid: '1',
+      key_name: 'dfx_test_key',
+      chain_type: { LINEA: null },
+    });
+    if (hasOwnProperty(linea_wallet, 'Ok')) {
+      lineaWallet = linea_wallet.Ok;
+    }
+    const matic_wallet = await intentsActor.wallet_get_address_for_platform({
+      platform_uuid: '1',
+      key_name: 'dfx_test_key',
+      chain_type: { MATIC: null },
+    });
+    if (hasOwnProperty(matic_wallet, 'Ok')) {
+      maticWallet = matic_wallet.Ok;
+    }
+
+    console.log({
+      lineaWallet,
+      mantleWalet,
+      maticWallet,
+    });
+  });
 });

@@ -1,8 +1,38 @@
 export const idlFactory = ({ IDL }) => {
+  const OrderType = IDL.Variant({
+    'BuyLimit' : IDL.Null,
+    'Platform' : IDL.Null,
+    'BuyStop' : IDL.Null,
+    'SellStop' : IDL.Null,
+    'SellLimit' : IDL.Null,
+    'Market' : IDL.Null,
+  });
+  const OrderDetail = IDL.Record({
+    'order_type' : OrderType,
+    'order_price' : IDL.Nat,
+    'max_spread' : IDL.Nat,
+  });
+  const IntentItem = IDL.Record({
+    'num' : IDL.Nat,
+    'tokenIn' : IDL.Text,
+    'intender' : IDL.Text,
+    'tokenOut' : IDL.Text,
+    'feeRate' : IDL.Nat,
+    'recipient' : IDL.Text,
+    'taskId' : IDL.Nat,
+    'signatureHash' : IDL.Text,
+    'expiration' : IDL.Nat,
+    'order_detail' : IDL.Opt(OrderDetail),
+    'to_chain_id' : IDL.Nat,
+    'tokenOutSymbol' : IDL.Text,
+    'destinationChain' : IDL.Text,
+    'amount' : IDL.Nat,
+    'intent_id' : IDL.Opt(IDL.Text),
+  });
   const UserIntents = IDL.Record({
     'is_finished' : IDL.Bool,
     'user_address' : IDL.Text,
-    'intent_bytes' : IDL.Vec(IDL.Nat8),
+    'intent_item' : IntentItem,
     'intent_id' : IDL.Opt(IDL.Text),
   });
   const Result = IDL.Variant({ 'Ok' : UserIntents, 'Err' : IDL.Text });
@@ -44,6 +74,63 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Tuple(IDL.Principal, IDL.Text),
     'Err' : IDL.Text,
   });
+  const ChainType = IDL.Variant({
+    'OP' : IDL.Null,
+    'ARB' : IDL.Null,
+    'BNB' : IDL.Null,
+    'BTC' : IDL.Null,
+    'ETH' : IDL.Null,
+    'HECO' : IDL.Null,
+    'OKEX' : IDL.Null,
+    'TRON' : IDL.Null,
+    'ZKSYNC' : IDL.Null,
+    'MANTLE' : IDL.Null,
+    'MATIC' : IDL.Null,
+    'LINEA' : IDL.Null,
+  });
+  const AddressInfo = IDL.Record({
+    'derived_path_hash' : IDL.Text,
+    'address_for' : OrderType,
+    'key_name' : IDL.Text,
+    'order_id' : IDL.Text,
+    'chain_type' : ChainType,
+    'last_update' : IDL.Nat64,
+    'address_string' : IDL.Text,
+  });
+  const SendEVMRequest = IDL.Record({
+    'gas' : IDL.Opt(IDL.Nat64),
+    'value' : IDL.Opt(IDL.Nat64),
+    'data' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'to_address' : IDL.Text,
+    'address_info' : AddressInfo,
+    'chain_id' : IDL.Opt(IDL.Nat64),
+    'nonce' : IDL.Opt(IDL.Nat64),
+    'sign_only' : IDL.Bool,
+    'gas_price' : IDL.Opt(IDL.Nat64),
+  });
+  const WalletError = IDL.Variant({
+    'Internal' : IDL.Null,
+    'Invalid' : IDL.Null,
+    'Overload' : IDL.Null,
+    'AlreadyExist' : IDL.Text,
+    'Duplicated' : IDL.Null,
+    'NotFound' : IDL.Null,
+    'WithMessage' : IDL.Text,
+    'AlreadySent' : IDL.Text,
+  });
+  const Result_8 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : WalletError });
+  const PlatformDetail = IDL.Record({
+    'platform_uuid' : IDL.Text,
+    'key_name' : IDL.Text,
+    'chain_type' : ChainType,
+  });
+  const Result_9 = IDL.Variant({ 'Ok' : AddressInfo, 'Err' : WalletError });
+  const RoleFilter = IDL.Variant({
+    'All' : IDL.Null,
+    'RoleAnd' : IDL.Tuple(OrderType, OrderType),
+    'RoleNot' : OrderType,
+    'Role' : OrderType,
+  });
   return IDL.Service({
     'add_user_intent' : IDL.Func([UserIntents], [Result], []),
     'ego_app_info_get' : IDL.Func([], [Result_1], ['query']),
@@ -83,10 +170,28 @@ export const idlFactory = ({ IDL }) => {
     'ego_user_list' : IDL.Func([], [Result_6], []),
     'ego_user_remove' : IDL.Func([IDL.Principal], [Result_2], []),
     'ego_user_set' : IDL.Func([IDL.Vec(IDL.Principal)], [Result_2], []),
+    'get_user_intent' : IDL.Func([IDL.Text], [IDL.Vec(UserIntents)], ['query']),
+    'get_user_intent_json' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(IDL.Text)],
+        ['query'],
+      ),
+    'intent_item_to_json' : IDL.Func([IntentItem], [IDL.Text], ['query']),
     'register_user' : IDL.Func(
         [GetDelegationRequest, IDL.Principal],
         [Result_7],
         [],
+      ),
+    'send_from_address' : IDL.Func([SendEVMRequest], [Result_8], []),
+    'wallet_get_address_for_platform' : IDL.Func(
+        [PlatformDetail],
+        [Result_9],
+        [],
+      ),
+    'wallet_get_all_addresses' : IDL.Func(
+        [RoleFilter],
+        [IDL.Vec(AddressInfo)],
+        ['query'],
       ),
     'whoAmI' : IDL.Func([], [IDL.Principal], []),
   });

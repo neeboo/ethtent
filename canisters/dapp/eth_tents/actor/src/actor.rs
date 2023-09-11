@@ -54,6 +54,7 @@ pub fn post_upgrade() {
     eth_tents_mod::state::post_upgrade();
 }
 
+/// users
 #[cfg(not(feature = "no_candid"))]
 #[update(name = "whoAmI", guard = "owner_guard")]
 #[candid_method(update, rename = "whoAmI")]
@@ -86,11 +87,33 @@ async fn get_valid_user(
     }
 }
 
+/// intents
 #[cfg(not(feature = "no_candid"))]
 #[update(name = "add_user_intent", guard = "eth_user_guard")]
 #[candid_method(update, rename = "add_user_intent")]
 pub fn add_user_intent(user_intent: UserIntents) -> Result<UserIntents, String> {
     eth_tents_mod::intent::IntentService::add_user_intent(user_intent)
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[query(name = "get_user_intent")]
+#[candid_method(query, rename = "get_user_intent")]
+pub fn get_user_intent(user_address: String) -> Vec<UserIntents> {
+    eth_tents_mod::intent::IntentService::get_user_intent(user_address)
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[query(name = "get_user_intent_json")]
+#[candid_method(query, rename = "get_user_intent_json")]
+pub fn get_user_intent_json(user_address: String) -> Vec<String> {
+    eth_tents_mod::intent::IntentService::get_user_intent_json(user_address)
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[query(name = "intent_item_to_json")]
+#[candid_method(query, rename = "intent_item_to_json")]
+pub fn intent_item_to_json(intent_item: IntentItem) -> String {
+    intent_item.to_json()
 }
 
 #[inline(always)]
@@ -102,6 +125,38 @@ pub fn eth_user_guard() -> Result<(), String> {
     } else {
         ic_cdk::api::trap(&format!("{} unauthorized", caller));
     }
+}
+
+/// wallets
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "wallet_get_address_for_platform", guard = "owner_guard")]
+#[candid_method(update, rename = "wallet_get_address_for_platform")]
+pub async fn wallet_get_address_for_platform(
+    tx: PlatformDetail,
+) -> Result<AddressInfo, WalletError> {
+    match eth_tents_mod::intent::IntentService::wallet_get_address_for_platform(&tx).await {
+        Ok(mut a) => {
+            a.address_string = a.address_string.clone().replace("0x", "");
+            a.save();
+            // insert_address(a.address_string.clone().replace("0x", ""), a.clone());
+            Ok(a.clone())
+        }
+        Err(e) => Err(e),
+    }
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[query(name = "wallet_get_all_addresses", guard = "owner_guard")]
+#[candid_method(query, rename = "wallet_get_all_addresses")]
+pub fn wallet_get_all_addresses(role_filter: RoleFilter) -> Vec<AddressInfo> {
+    AddressInfo::get_all_address(role_filter)
+}
+
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "send_from_address", guard = "owner_guard")]
+#[candid_method(update, rename = "send_from_address")]
+pub async fn send_from_address(params: SendEVMRequest) -> Result<String, WalletError> {
+    eth_tents_mod::intent::IntentService::send_from_address(params).await
 }
 
 //
