@@ -34,7 +34,7 @@ describe('eth_tents', () => {
       getCanisterId('eth_users')!,
     );
   });
-  test.skip('init', async () => {
+  test('init', async () => {
     const pid = (await intentsActor.whoAmI()).toText();
     const s = await usersActor.ensureSaltSet();
 
@@ -44,11 +44,11 @@ describe('eth_tents', () => {
 
     expect(pid).toBe(identity().getPrincipal().toText());
   });
-  test.skip('create wallets', async () => {
+  test('create wallets', async () => {
     let mantleWalet, lineaWallet, maticWallet;
     const mantle_wallet = await intentsActor.wallet_get_address_for_platform({
-      platform_uuid: '2',
-      key_name: 'dfx_test_key',
+      platform_uuid: '12',
+      key_name: 'test_key_1',
       chain_type: { MANTLE: null },
     });
     if (hasOwnProperty(mantle_wallet, 'Ok')) {
@@ -56,16 +56,16 @@ describe('eth_tents', () => {
     }
 
     const linea_wallet = await intentsActor.wallet_get_address_for_platform({
-      platform_uuid: '3',
-      key_name: 'dfx_test_key',
+      platform_uuid: '12',
+      key_name: 'test_key_1',
       chain_type: { LINEA: null },
     });
     if (hasOwnProperty(linea_wallet, 'Ok')) {
       lineaWallet = linea_wallet.Ok;
     }
     const matic_wallet = await intentsActor.wallet_get_address_for_platform({
-      platform_uuid: '4',
-      key_name: 'dfx_test_key',
+      platform_uuid: '12',
+      key_name: 'test_key_1',
       chain_type: { MATIC: null },
     });
     if (hasOwnProperty(matic_wallet, 'Ok')) {
@@ -131,3 +131,33 @@ export function fromIntentItem(item: IntentItem): Array<any> {
     item.signatureHash,
   ];
 }
+
+// {
+//   lineaWallet: {
+//     derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
+//     address_for: { Platform: null },
+//     key_name: 'test_key_1',
+//     order_id: '12',
+//     chain_type: { LINEA: null },
+//     last_update: 1694446548927416081n,
+//     address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188'
+//   },
+//   mantleWalet: {
+//     derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
+//     address_for: { Platform: null },
+//     key_name: 'test_key_1',
+//     order_id: '12',
+//     chain_type: { MANTLE: null },
+//     last_update: 1694446540812992769n,
+//     address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188'
+//   },
+//   maticWallet: {
+//     derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
+//     address_for: { Platform: null },
+//     key_name: 'test_key_1',
+//     order_id: '12',
+//     chain_type: { MATIC: null },
+//     last_update: 1694446558897292725n,
+//     address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188'
+//   }
+// }
