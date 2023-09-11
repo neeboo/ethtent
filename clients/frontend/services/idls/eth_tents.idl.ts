@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export const idlFactory = ({ IDL }) => {
   const UserIntents = IDL.Record({
     'is_finished' : IDL.Bool,

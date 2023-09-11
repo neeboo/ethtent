@@ -7,7 +7,6 @@ import { DelegationChain, DelegationIdentity, isDelegationValid } from '@dfinity
 import { idlFactory as metamaskIDL } from '../idls/eth_users.idl';
 import { SignedDelegation, _SERVICE as metamaskService } from '../idls/eth_users';
 import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
-import { useWalletConnectClient } from '../walletConnect';
 import { ethers } from 'ethers';
 import { toHexString } from '@dfinity/candid';
 // import { getProvider } from 'wagmi';

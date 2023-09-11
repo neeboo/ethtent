@@ -1,6 +1,5 @@
 'use client';
 import { MMAuthProvider } from '@/services/mm/mm';
-import { WCClientContextProvider } from '@/services/walletConnect';
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { createConfig, configureChains, WagmiConfig } from 'wagmi';

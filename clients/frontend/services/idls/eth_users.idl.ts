@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export const idlFactory = ({ IDL }) => {
   const Version = IDL.Record({
     'major' : IDL.Nat32,
