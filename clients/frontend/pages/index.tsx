@@ -1,6 +1,7 @@
 'use client';
 import { StrictMode } from 'react';
 // import { Provider } from 'react-redux'
+import Image from 'next/image';
 import InvestmentPlanView from '@/components/InvestmentPlanView';
 import TableInvest from '@/components/TableInvest';
 import Headers from '@/components/Header';
@@ -22,6 +23,13 @@ export default function Home() {
         isSignedIn={identity !== undefined && address !== undefined}
       />
       <main className="min-h-[1280px] mx-auto w-[1080px]">
+        <Image
+          src="/static/logo.jpg"
+          alt="Picture of the author"
+          width={200}
+          height={200}
+          className="mx-auto m-2"
+        />
         <InvestmentPlanView />
         <TableInvest />
       </main>

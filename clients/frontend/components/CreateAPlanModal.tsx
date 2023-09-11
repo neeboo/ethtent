@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface DialogDemoProps {
   available: boolean;
@@ -15,6 +22,7 @@ interface DCAprop {
   rotationCount?: number;
   time?: number;
   currency?: string;
+  limitPrice?: number;
 }
 
 const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
@@ -97,23 +105,27 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
             </div>
             <div className="mt-6">
               <div className="mb-1 text-xs font-normal text-black">Amount Per Investment</div>
-              <Input
-                // value={open ? dca?.amount : 0}
-                onChange={e => {
-                  setDCA({ ...dca, amount: parseInt(e.target.value) });
-                  setCommissionCharge(parseInt(e.target.value) * 0.003);
-                }}
-              ></Input>
+              <div className='flex gap-2 w-full'>
+                <Input
+                  className='w-3/4'
+                  // value={open ? dca?.amount : 0}
+                  onChange={e => {
+                    setDCA({ ...dca, amount: parseInt(e.target.value) });
+                    setCommissionCharge(parseInt(e.target.value) * 0.003);
+                  }}
+                ></Input>
+                <Input
+                  value="xDAI"
+                  className='w-1/4'
+                  disabled={true}
+                  onChange={e => {
+                    setDCA({ ...dca, amount: parseInt(e.target.value) });
+                    setCommissionCharge(parseInt(e.target.value) * 0.003);
+                  }}
+                ></Input>
+              </div>
             </div>
-            <div className="mt-6">
-              <div className="mb-1 text-xs font-normal text-black">Number of Rotation</div>
-              <Input
-                // value={open ? dca?.rotationCount : 0}
-                onChange={e => {
-                  setDCA({ ...dca, rotationCount: parseInt(e.target.value) });
-                }}
-              ></Input>
-            </div>
+
             <div className="mt-6">
               <div className="mt-6 grid grid-cols-4 gap-2">
                 <div className="col-span-4 mb-1 text-xs font-normal text-black">Rotate Period</div>
@@ -144,16 +156,52 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
               </label>
             </div>
             {limitOrder ? (
-              <div className="mt-6">
-                <div className="mb-1 text-xs font-normal text-black">Limit Price</div>
-                <Input
-                  // value={open ? dca?.amount : 0}
-                  onChange={e => {
-                    setDCA({ ...dca, amount: parseInt(e.target.value) });
-                    setCommissionCharge(parseInt(e.target.value) * 0.003);
-                  }}
-                ></Input>
-              </div>
+              <>
+                <div className="mt-6">
+                  <div className="mb-1 text-xs font-normal text-black">Limit Price</div>
+                  <div className='flex gap-2 w-full'>
+                    <Select >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Long" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="red">Long</SelectItem>
+                        <SelectItem value="green">Short</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="w-3/4"
+                      // value={open ? dca?.amount : 0}
+                      onChange={e => {
+                        setDCA({ ...dca, limitPrice: parseInt(e.target.value) });
+                      }}
+                    ></Input>
+                  </div>
+
+                </div>
+                <div className="mt-6">
+                  <div className="mb-1 text-xs font-normal text-black">Amount Per Investment</div>
+                  <div className='flex gap-2 w-full'>
+                    <Input
+                      className='w-3/4'
+                      // value={open ? dca?.amount : 0}
+                      onChange={e => {
+                        setDCA({ ...dca, amount: parseInt(e.target.value) });
+                        setCommissionCharge(parseInt(e.target.value) * 0.003);
+                      }}
+                    ></Input>
+                    <Input
+                      value="xDAI"
+                      className='w-1/4'
+                      disabled={true}
+                      onChange={e => {
+                        setDCA({ ...dca, amount: parseInt(e.target.value) });
+                        setCommissionCharge(parseInt(e.target.value) * 0.003);
+                      }}
+                    ></Input>
+                  </div>
+                </div>
+              </>
             ) : null}
           </div>
 
