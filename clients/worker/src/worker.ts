@@ -47,11 +47,11 @@ function fromIntentItem(item: IntentItem): Record<string, any> {
 		tokenOutSymbol: item.tokenOutSymbol,
 		tokenIn: `0x${item.tokenIn.replace('0x', '')}`,
 		tokenOut: `0x${item.tokenOut.replace('0x', '')}`,
-		amount: ethers.utils.parseUnits(item.amount.toString(), 'gwei'),
+		amount: ethers.utils.parseUnits(item.amount.toString(), 'wei'),
 		num: ethers.utils.parseUnits(item.num == BigInt(0) ? '1' : item.num.toString(), 'wei'),
 		feeRate: ethers.utils.parseUnits(item.feeRate.toString(), 'wei'),
 		expiration: ethers.utils.parseUnits((Math.ceil(Date.now() / 1000) + 1 * 3600 * 24).toString(), 'wei'),
-		taskId: ethers.utils.parseUnits('2', 'wei'),
+		taskId: ethers.utils.parseUnits(item.taskId.toString(), 'wei'),
 		signatureHash: item.signatureHash,
 	};
 }
@@ -109,36 +109,27 @@ async function task() {
 			'https://icp-api.io'
 		);
 	const intents_every = await intentActor.get_all_intents([false]);
-
+	console.log(intents_every.length);
 	if (intents_every.length > 0) {
 		for (let i = 0; i < intents_every.length; i++) {
 			const intent = intents_every[i];
 			const intent_item = intent.intent_item;
+
 			const user_address = intent.user_address;
-
 			const { vault, rpc, chainId, name } = getVaultFromDaiContract(intent_item.tokenIn);
-
 			const provider = new ethers.providers.StaticJsonRpcProvider({
 				url: rpc,
 				skipFetchSetup: true,
 			});
-
 			const { abi, bytecode } = contract;
-
 			const vaultContract = new ethers.Contract(vault, abi, provider);
-
 			const data = fromIntentItem(intent_item);
-
 			console.log(data);
-
-			const encodedData = vaultContract.interface.encodeFunctionData('executeBatch', [[data]]);
-
+			const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
 			const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
-
 			const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
 			console.log({ balance });
 			console.log({ nonce });
-
 			const signed = await intentActor.send_from_address({
 				gas: [BigInt(2100000)],
 				value: [],
@@ -158,7 +149,6 @@ async function task() {
 				sign_only: true,
 				gas_price: [BigInt(10000000000)],
 			});
-
 			if (hasOwnProperty(signed, 'Ok')) {
 				console.log({ signed: signed.Ok });
 				const tx = await provider.sendTransaction(`0x${signed.Ok}`);

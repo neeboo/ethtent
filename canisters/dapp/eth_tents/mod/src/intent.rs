@@ -53,6 +53,7 @@ impl IntentService {
             intent_id: Some(intent_id.0.clone()),
             intent_item: IntentItem {
                 intent_id: Some(intent_id.0.clone()),
+                task_id: u128::from(u64::from_be_bytes(intent_id.1)),
                 ..intents.intent_item
             },
             ..intents
@@ -95,16 +96,39 @@ impl IntentService {
         INTENTS.with(|f| f.borrow_mut().remove(&u8_arr))
     }
 
-    pub fn update_intent_hash(intent_id: String, tx_hash: String) -> Option<String> {
+    pub fn get_intent_by_id(intent_id: String) -> Option<UserIntents> {
         let mut u8_arr = [0u8; 8];
         let arr = hex::decode(intent_id).unwrap();
         u8_arr.copy_from_slice(&arr);
-        INTENTS.with(|f| {
-            f.borrow_mut().get(&u8_arr).map(|mut v| {
-                v.tx_hash = Some(tx_hash.clone());
-                tx_hash.clone()
-            })
-        })
+        INTENTS.with(|f| f.borrow().get(&u8_arr))
+    }
+
+    pub fn update_intent_hash(intent_id: String, tx_hash: String) -> Option<UserIntents> {
+        match IntentService::_get_intent_by_id(intent_id) {
+            None => None,
+            Some(v) => INTENTS.with(|s| {
+                s.borrow_mut().insert(
+                    v.0,
+                    UserIntents {
+                        tx_hash: Some(tx_hash),
+                        ..v.1.clone()
+                    },
+                )
+            }),
+        }
+    }
+
+    fn _get_intent_by_id(intent_id: String) -> Option<([u8; 8], UserIntents)> {
+        let mut u8_arr = [0u8; 8];
+        let arr = hex::decode(intent_id).unwrap();
+        u8_arr.copy_from_slice(&arr);
+
+        let item = INTENTS.with(|f| f.borrow().get(&u8_arr));
+        if item.is_none() {
+            None
+        } else {
+            Some((u8_arr, item.unwrap().clone()))
+        }
     }
 
     pub fn get_all_intents(is_finshed: Option<bool>) -> Vec<UserIntents> {
@@ -116,7 +140,7 @@ impl IntentService {
                     return if is_finshed.is_none() {
                         true
                     } else {
-                        Some(f.is_finished) == is_finshed
+                        f.is_finished == is_finshed.unwrap()
                     };
                 })
                 .collect()
@@ -124,15 +148,18 @@ impl IntentService {
     }
 
     pub fn finish_intent(intent_id: String, is_finished: bool) -> Option<UserIntents> {
-        let mut u8_arr = [0u8; 8];
-        let arr = hex::decode(intent_id).unwrap();
-        u8_arr.copy_from_slice(&arr);
-        INTENTS.with(|f| {
-            f.borrow_mut().get(&u8_arr).map(|mut v| {
-                v.is_finished = is_finished;
-                v.clone()
-            })
-        })
+        match IntentService::_get_intent_by_id(intent_id) {
+            None => None,
+            Some(v) => INTENTS.with(|s| {
+                s.borrow_mut().insert(
+                    v.0,
+                    UserIntents {
+                        is_finished,
+                        ..v.1.clone()
+                    },
+                )
+            }),
+        }
     }
 
     pub fn get_key_id(chain_type: ChainType, key_string: String) -> EcdsaKeyIds {

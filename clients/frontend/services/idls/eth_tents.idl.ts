@@ -181,6 +181,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(UserIntents)],
         ['query'],
       ),
+    'get_intent_by_id' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(UserIntents)],
+        ['query'],
+      ),
     'get_user_intent' : IDL.Func([IDL.Text], [IDL.Vec(UserIntents)], ['query']),
     'get_user_intent_json' : IDL.Func(
         [IDL.Text],
@@ -202,7 +207,7 @@ export const idlFactory = ({ IDL }) => {
     'testUnwrap' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Text], []),
     'update_intent_hash' : IDL.Func(
         [IDL.Text, IDL.Text],
-        [IDL.Opt(IDL.Text)],
+        [IDL.Opt(UserIntents)],
         [],
       ),
     'wallet_get_address_for_platform' : IDL.Func(

@@ -37,7 +37,8 @@ describe('eth_tents', () => {
       getCanisterId('eth_users')!,
     );
   });
-  test.skip('init', async () => {
+
+  test('init', async () => {
     const pid = (await intentsActor.whoAmI()).toText();
     const s = await usersActor.ensureSaltSet();
 
@@ -117,60 +118,69 @@ describe('eth_tents', () => {
     const intents_every = await intentsActor.get_all_intents([false]);
     console.log({ intents_every: intents_every.map(e => e.intent_item) });
 
+    for (let i = 0; i < intents_every.length; i++) {
+      const s = await intentsActor.finish_intent(intents_every[i].intent_id[0]!, true);
+      const s2 = await intentsActor.get_intent_by_id(intents_every[i].intent_id[0]!);
+      console.log({
+        s,
+        s2,
+      });
+    }
+
     // await intentsActor.remove_user_intent_by_id(intents_every[0].intent_id[0]!);
 
-    console.log(intents_every[0].intent_item);
+    // console.log(intents_every[0].intent_item);
 
-    const { abi, bytecode } = contract;
+    // const { abi, bytecode } = contract;
 
-    const vault = '0xB45966E75317c30610223ed5D26851a80C4F5420';
+    // const vault = '0xB45966E75317c30610223ed5D26851a80C4F5420';
 
-    const provider = new ethers.providers.StaticJsonRpcProvider({
-      url: 'https://rpc.testnet.mantle.xyz/',
+    // const provider = new ethers.providers.StaticJsonRpcProvider({
+    //   url: 'https://rpc.testnet.mantle.xyz/',
 
-      skipFetchSetup: true,
-    });
+    //   skipFetchSetup: true,
+    // });
 
-    const vaultContract = new ethers.Contract(vault, abi, provider);
+    // const vaultContract = new ethers.Contract(vault, abi, provider);
 
-    const data = fromIntentItem2(intents_every[intents_every.length - 1].intent_item);
-    console.log(data['amount'].toString());
+    // const data = fromIntentItem2(intents_every[intents_every.length - 1].intent_item);
+    // console.log(data['amount'].toString());
 
-    const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
+    // const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
 
-    const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
+    // const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
 
-    const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
-    console.log({ balance });
-    console.log({ nonce });
+    // const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
+    // console.log({ balance });
+    // console.log({ nonce });
 
-    const signed = await intentsActor.send_from_address({
-      gas: [BigInt(2100000)],
-      value: [],
-      data: [Array.from(new Uint8Array(fromHexString(encodedData.replace('0x', ''))))],
-      to_address: vault,
-      address_info: {
-        derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
-        address_for: { Platform: null },
-        key_name: 'test_key_1',
-        order_id: '12',
-        chain_type: { MANTLE: null },
-        last_update: BigInt(1694446540812992769),
-        address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188',
-      },
-      chain_id: [BigInt(5001)],
-      nonce: [BigInt(nonce)],
-      sign_only: true,
-      gas_price: [BigInt(10000000000)],
-    });
+    // const signed = await intentsActor.send_from_address({
+    //   gas: [BigInt(2100000)],
+    //   value: [],
+    //   data: [Array.from(new Uint8Array(fromHexString(encodedData.replace('0x', ''))))],
+    //   to_address: vault,
+    //   address_info: {
+    //     derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
+    //     address_for: { Platform: null },
+    //     key_name: 'test_key_1',
+    //     order_id: '12',
+    //     chain_type: { MANTLE: null },
+    //     last_update: BigInt(1694446540812992769),
+    //     address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188',
+    //   },
+    //   chain_id: [BigInt(5001)],
+    //   nonce: [BigInt(nonce)],
+    //   sign_only: true,
+    //   gas_price: [BigInt(10000000000)],
+    // });
 
-    if (hasOwnProperty(signed, 'Ok')) {
-      console.log({ signed: signed.Ok });
-      const tx = await provider.sendTransaction(`0x${signed.Ok}`);
-      console.log({ tx });
-    } else {
-      console.log(signed);
-    }
+    // if (hasOwnProperty(signed, 'Ok')) {
+    //   console.log({ signed: signed.Ok });
+    //   const tx = await provider.sendTransaction(`0x${signed.Ok}`);
+    //   console.log({ tx });
+    // } else {
+    //   console.log(signed);
+    // }
   });
 });
 
