@@ -7,23 +7,12 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-
-// import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
-// import "hardhat/console.sol";
-
-interface IAxelarGateway {
-    function sendToken(
-        string calldata destinationChain,
-        string calldata destinationAddress,
-        string calldata symbol,
-        uint256 amount
-    ) external; 
-}
+import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
 
 contract vault is Ownable,AccessControl,ReentrancyGuard {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+    bytes32 public constant SOLVER_ROLE = keccak256("SOLVER_ROLE");
 
     uint256 public fee;
     address public feeWallet ;
@@ -51,9 +40,9 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
         _;
     }
 
-    modifier onlyAdminOrModerator() {
+    modifier onlyAdminOrSolver() {
         require(
-            hasRole(ADMIN_ROLE, msg.sender) || hasRole(MODERATOR_ROLE, msg.sender),
+            hasRole(ADMIN_ROLE, msg.sender) || hasRole(SOLVER_ROLE, msg.sender),
             "Caller is not an admin or moderator"
         );
         _;
@@ -64,7 +53,7 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
     }
 
     function addModerator(address account) public onlyAdmin {
-        grantRole(MODERATOR_ROLE, account);
+        grantRole(SOLVER_ROLE, account);
     }
 
     function removeAdmin(address account) public onlyAdmin {
@@ -72,66 +61,64 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
     }
 
     function removeModerator(address account) public onlyAdmin {
-        revokeRole(MODERATOR_ROLE, account);
+        revokeRole(SOLVER_ROLE, account);
     }
 
+    struct Intent {
+        address intender;         //The initiator of the intention, combined with internal verification for rights.
+        string  destinationChain; //The destinationChain of the target chain.       
+        string  recipient;        //The user's address on the target chain where assets are received.
+        string  tokenOutSymbol;   //tokenOut symbol 
+        address tokenIn;          //The address of the token to be sold in the scheduled investment (source chain address, such as DAI on Polygon).
+        address tokenOut;         //The address of the token to be purchased in the scheduled investment (source chain address, such as WETH on Polygon).
+        uint256 amount;           //The maximum amount for each scheduled investment.
+        uint256 num;              //The total number of scheduled investment times.
+        uint256 feeRate;          //The upper limit of the fee rate, e.g., 30/10000 = 0.3%.
+        uint256 expiration;       //The expiration time, e.g., 1 hour for a 1-hour scheduled investment (the signature will expire after 1 hour).
+        uint256 taskId;           //The task ID, a unique ID for this intention.
+        bytes  signatureHash;     //The signature.
+    }
     /**
      * @notice Execute scheduled investment
      * @dev This function is used to perform scheduled investments across different chains,
      * including signature validation, permission confirmation, and handling transfers.
-     * @param intender The initiator of the intention, combined with internal verification for rights.
-     * @param destinationChain The destinationChain of the target chain.
-     * @param recipient The user's address on the target chain where assets are received.
-     * @param tokenOutSymbol tokenOut symbol 
-     * @param tokenIn The address of the token to be sold in the scheduled investment (source chain address, such as DAI on Polygon).
-     * @param tokenOut The address of the token to be purchased in the scheduled investment (source chain address, such as WETH on Polygon).
-     * @param amount The maximum amount for each scheduled investment.
-     * @param num The total number of scheduled investment times.
-     * @param feeRate The upper limit of the fee rate, e.g., 30/10000 = 0.3%.
-     * @param expiration The expiration time, e.g., 1 hour for a 1-hour scheduled investment (the signature will expire after 1 hour).
-     * @param taskId The task ID, a unique ID for this intention.
-     * @param signatureHash The signature.
+     * @param intent the Intent struct
      */
+    function executed( Intent memory intent) public onlyAdminOrSolver nonReentrant {
+        _executed(intent);
+    }
 
-    function executed(
-        address intender,         
-        string calldata destinationChain,        
-        string calldata recipient,        
-        string calldata tokenOutSymbol,
-        address tokenIn,           
-        address tokenOut,         
-        uint256 amount,           
-        uint256 num,             
-        uint256 feeRate,          
-        uint256 expiration,        
-        uint256 taskId,           
-        bytes memory signatureHash 
-    ) public onlyAdminOrModerator nonReentrant {
+    function executedBatch( Intent[] memory intents) public onlyAdminOrSolver nonReentrant {
+        for (uint256 i = 0; i < intents.length; i++) {
+            _executed(intents[i]);
+        }
+    }
 
+    function _executed( Intent memory intent) internal {
         // step 0 todo checkSignAndIntender
-        require( !taskStatus[taskId], "task has been completed ");
-        require( taskProgress[taskId] == num, "The number of tasks has been used");
+        require( !taskStatus[intent.taskId], "task has been completed ");
+        require( taskProgress[intent.taskId] != intent.num, "The number of tasks has been used");
         require(
-            IERC20(tokenIn).allowance(intender, address(this)) >= amount,
+            IERC20(intent.tokenIn).allowance(intent.intender, address(this)) >= intent.amount,
              "Not enough allowance"
         );
-        require( block.timestamp < expiration, "has timed out");
-        require(feeRate > fee , "The handling fee does not meet user requirements");
+        require( block.timestamp < intent.expiration, "has timed out");
+        require(intent.feeRate >= fee , "The handling fee does not meet user requirements");
 
-        taskProgress[taskId] += 1; 
-        if (taskProgress[taskId] == num){ 
-            taskStatus[taskId] = true;
+        taskProgress[intent.taskId] += 1; 
+        if (taskProgress[intent.taskId] == intent.num){ 
+            taskStatus[intent.taskId] = true;
         }
 
-        transferTokensToContract(tokenIn,amount,intender);
-        uint256 amountSwaped = swapTokens(tokenIn,tokenOut,amount,0);
+        transferTokensToContract(intent.tokenIn,intent.amount,intent.intender);
+        uint256 amountSwaped = swapTokens(intent.tokenIn,intent.tokenOut,intent.amount,0);
 
         // bridge
-        IERC20(tokenOut).approve(address(axelarGateway),amountSwaped);
+        IERC20(intent.tokenOut).approve(address(axelarGateway),amountSwaped);
         axelarGateway.sendToken(
-            destinationChain,
-            recipient,
-            tokenOutSymbol,
+            intent.destinationChain,
+            intent.recipient,
+            intent.tokenOutSymbol,
             amountSwaped
         );
     }
@@ -164,7 +151,10 @@ contract vault is Ownable,AccessControl,ReentrancyGuard {
         );
     }
 
-    function getPathForTokenSwap(address tokenIn, address tokenOut) internal pure returns (address[] memory) {
+    function getPathForTokenSwap(
+        address tokenIn, 
+        address tokenOut
+    ) internal pure returns (address[] memory) {
         address[] memory path = new address[](2);
         path[0] = tokenIn;
         path[1] = tokenOut;

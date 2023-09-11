@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20, Ownable {
+contract DAI is ERC20 {
     constructor() ERC20("DAI", "dai") {
+        mint(msg.sender,10000);
     }
 
-    function mint(uint256 amount) public onlyOwner {
-        _mint(msg.sender, amount * (10 ** uint256(decimals())));
-    }
-
-    function burn(uint256 amount) public onlyOwner {
-        _burn(msg.sender, amount * (10 ** uint256(decimals())));
+    // for demo public mint
+    function mint(address to,uint256 amount) public {
+        _mint(to,amount);
     }
 }
