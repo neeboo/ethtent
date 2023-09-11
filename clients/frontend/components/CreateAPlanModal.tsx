@@ -184,6 +184,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
                     onClick={() => {
                       setSelectedRotationId(item.id); // Update the selected ID when clicked
                       handleRotationChange(item.id); // Existing function to change rotation
+                      setDCA({ ...dca, time: item.value }); // Update the DCA object
                     }}
                   >
                     <span className="text-xs font-normal text-black">{item.label}</span>
