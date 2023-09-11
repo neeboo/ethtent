@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import DialogDemo from './CreateAPlanModal';
 import { Chain, useNetwork } from 'wagmi';
 import { SignIdentity } from '@dfinity/agent';
+import { UserIntents } from '@/services/idls/eth_tents';
 function getDaiAddress(chain?: Chain): `0x${string}` | undefined {
   if (!chain) {
     return undefined;
@@ -45,7 +46,7 @@ function getAusdAddress(chain?: Chain): `0x${string}` | undefined {
   }
 }
 
-const TableInvest = ({ identity }: { identity?: SignIdentity }) => {
+const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAddedData: (item: UserIntents) => any }) => {
   const tradeData = [
     {
       id: 1,
@@ -124,6 +125,9 @@ const TableInvest = ({ identity }: { identity?: SignIdentity }) => {
             intentAddress={getIntentAddress(chain)}
             ausdAddress={getAusdAddress(chain)}
             identity={identity}
+            onAddedData={e => {
+              onAddedData(e);
+            }}
           />
         </div>
       ))}

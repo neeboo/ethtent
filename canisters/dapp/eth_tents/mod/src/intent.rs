@@ -95,6 +95,18 @@ impl IntentService {
         INTENTS.with(|f| f.borrow_mut().remove(&u8_arr))
     }
 
+    pub fn update_intent_hash(intent_id: String, tx_hash: String) -> Option<String> {
+        let mut u8_arr = [0u8; 8];
+        let arr = hex::decode(intent_id).unwrap();
+        u8_arr.copy_from_slice(&arr);
+        INTENTS.with(|f| {
+            f.borrow_mut().get(&u8_arr).map(|mut v| {
+                v.tx_hash = Some(tx_hash.clone());
+                tx_hash.clone()
+            })
+        })
+    }
+
     pub fn get_all_intents(is_finshed: Option<bool>) -> Vec<UserIntents> {
         INTENTS.with(|f| {
             f.borrow()

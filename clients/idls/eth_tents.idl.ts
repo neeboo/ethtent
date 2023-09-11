@@ -32,6 +32,7 @@ export const idlFactory = ({ IDL }) => {
   const UserIntents = IDL.Record({
     'is_finished' : IDL.Bool,
     'user_address' : IDL.Text,
+    'tx_hash' : IDL.Opt(IDL.Text),
     'intent_item' : IntentItem,
     'intent_id' : IDL.Opt(IDL.Text),
   });
@@ -199,6 +200,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'send_from_address' : IDL.Func([SendEVMRequest], [Result_8], []),
     'testUnwrap' : IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Text], []),
+    'update_intent_hash' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Opt(IDL.Text)],
+        [],
+      ),
     'wallet_get_address_for_platform' : IDL.Func(
         [PlatformDetail],
         [Result_9],

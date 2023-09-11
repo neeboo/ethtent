@@ -47,6 +47,7 @@ pub struct UserIntents {
     pub intent_item: IntentItem,
     pub intent_id: Option<String>,
     pub is_finished: bool,
+    pub tx_hash: Option<String>,
 }
 
 impl Storable for UserIntents {

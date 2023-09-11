@@ -1,5 +1,5 @@
 'use client';
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 // import { Provider } from 'react-redux'
 import Image from 'next/image';
 import InvestmentPlanView from '@/components/InvestmentPlanView';
@@ -9,9 +9,11 @@ import Footer from '@/components/Footer';
 import { MMAuthProvider, useMMAuth } from '@/services/mm/mm';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 import { Button } from '@/components/ui/button';
+import { UserIntents } from '@/services/idls/eth_tents';
 
 export default function Home() {
   const { isConnected, identity, isLoading, login, logout, address } = useMMAuth();
+  const [newData, setNewData] = useState<UserIntents | undefined>(undefined);
 
   return (
     <>
@@ -30,8 +32,13 @@ export default function Home() {
 
       <main className="min-h-[1280px] mx-auto w-[1080px]">
         <Image src="/static/logo.jpg" alt="Picture of the author" width={200} height={200} className="mx-auto m-2" />
-        <InvestmentPlanView />
-        <TableInvest identity={identity} />
+        <InvestmentPlanView newData={newData} />
+        <TableInvest
+          identity={identity}
+          onAddedData={e => {
+            setNewData(e);
+          }}
+        />
       </main>
       <Footer />
     </>

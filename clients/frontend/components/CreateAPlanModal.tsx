@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { idlFactory as ethTentsIDL } from '@/services/idls/eth_tents.idl';
-import { _SERVICE as ethTentsService } from '@/services/idls/eth_tents';
+import { IntentItem, UserIntents, _SERVICE as ethTentsService } from '@/services/idls/eth_tents';
 import {
   Chain,
   useAccount,
@@ -25,6 +25,7 @@ import { _createActor } from '@/services/baseConnection';
 import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
 import { KEY_ICSTORAGE_IDENTITY, KEY_ICSTORAGE_KEY } from '@/services/mm/mm';
 import { DelegationChain, DelegationIdentity, isDelegationValid } from '@dfinity/identity';
+import { hasOwnProperty } from '@/services/utils';
 // import { useDebounce } from 'usehooks-ts'
 
 interface DialogDemoProps {
@@ -34,6 +35,7 @@ interface DialogDemoProps {
   intentAddress?: `0x${string}`;
   ausdAddress?: `0x${string}`;
   identity?: SignIdentity;
+  onAddedData: (item: UserIntents) => any;
 }
 
 interface DCAprop {
@@ -63,15 +65,18 @@ function loadIdentity(): DelegationIdentity | undefined {
   }
 }
 
-const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAddress, intentAddress, identity, ausdAddress }) => {
+const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAddress, intentAddress, identity, ausdAddress, onAddedData }) => {
   const [selectedRotation, setSelectedRotation] = useState<number | null>(null);
   const [selectedRotationId, setSelectedRotationId] = useState<number | null>(null);
-  const [dca, setDCA] = useState<DCAprop | null>(null);
+  const [dca, setDCA] = useState<DCAprop | {}>({});
   const [commissionCharge, setCommissionCharge] = useState<number | null>(null);
   const [limitOrder, setLimitOrder] = useState<boolean>(false);
+  const [shouldSubmit, setShouldSubmit] = useState<boolean>(false);
 
   const [open, setOpen] = React.useState(false);
   const { address } = useAccount();
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   let daiAddress: `0x${string}` | undefined = tokenAddress;
   let intent: `0x${string}` | undefined = intentAddress;
@@ -129,9 +134,10 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
 
   async function submitDCA() {
     write!();
+    setShouldSubmit(true);
   }
 
-  if (isSuccess) {
+  if (isSuccess && shouldSubmit === true) {
     submitDCAToWorker();
   }
 
@@ -139,35 +145,42 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
     console.log({ dca });
     console.log('submitDCA');
 
-    // const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
-
-    // const added = await actor.add_user_intent({
-    //   is_finished: false,
-    //   user_address: address!,
-    //   intent_item: {
-    //     num: BigInt(0),
-    //     tokenIn: daiAddress!,
-    //     intender: address!,
-    //     tokenOut: ausd!,
-    //     feeRate: BigInt(30),
-    //     recipient: address!,
-    //     taskId: BigInt(0),
-    //     signatureHash: '0x',
-    //     expiration: BigInt(Math.ceil(Date.now() / 1000) + 1 * 3600 * 24),
-    //     order_detail: [],
-    //     to_chain_id: BigInt(0),
-    //     tokenOutSymbol: 'aUSDC',
-    //     destinationChain: 'ethereum-2',
-    //     amount: BigInt(5000000),
-    //     intent_id: [],
-    //   },
-    //   intent_id: [],
-    // });
+    const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
+    //console.log(BigInt(dca['amount']) * BigInt(10 ** 18));
+    setLoading(true);
+    const added = await actor.add_user_intent({
+      is_finished: false,
+      user_address: address!,
+      intent_item: {
+        num: BigInt(1),
+        tokenIn: daiAddress!,
+        intender: address!,
+        tokenOut: ausd!,
+        feeRate: BigInt(30),
+        recipient: address!,
+        taskId: BigInt(0),
+        signatureHash: '0x',
+        expiration: BigInt(Math.ceil(Date.now() / 1000) + Math.ceil(dca['time'] ? dca['time'] / 1000 : 0) * 3),
+        order_detail: [],
+        to_chain_id: BigInt(0),
+        tokenOutSymbol: 'aUSDC',
+        destinationChain: 'ethereum-2',
+        amount: dca['amount'] ? BigInt(dca['amount']) * BigInt(10 ** 18) : BigInt(5000000),
+        intent_id: [],
+      },
+      intent_id: [],
+    });
+    if (hasOwnProperty(added, 'Ok')) {
+      onAddedData(added.Ok);
+    }
+    setShouldSubmit(false);
+    setLoading(false);
+    setOpen(false);
   }
 
   function resetForm() {
     setCommissionCharge(0);
-    setDCA(null);
+    setDCA({});
     setSelectedRotationId(1);
     handleRotationChange(1);
   }
@@ -175,7 +188,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
   useEffect(() => {
     if (open) {
       setCommissionCharge(0);
-      setDCA(null);
+      setDCA({});
       setSelectedRotationId(1);
       handleRotationChange(1);
     }
@@ -318,7 +331,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
             <div className="grid grid-rows-4 gap-2">
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Amount Per Investment</div>
-                <div>{dca?.amount ? dca?.amount : '--'} USDT</div>
+                <div>{dca['amount'] ? dca['amount'] : '--'} USDT</div>
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Created Time</div>
@@ -330,7 +343,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Commission (0.3%)</div>
-                <div>{dca?.amount ? commissionCharge : '--'}</div>
+                <div>{dca['amount'] ? commissionCharge : '--'}</div>
               </div>
             </div>
           </div>
@@ -338,7 +351,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
         <DialogFooter>
           <Button
             onClick={async () => await submitDCA()}
-            disabled={daiBalance.data === undefined || daiBalance.data.symbol !== 'dai' || daiBalance.data?.value < BigInt(5000000)}
+            disabled={daiBalance.data === undefined || daiBalance.data.symbol !== 'dai' || daiBalance.data?.value < BigInt(5000000) || loading}
           >
             Create
           </Button>

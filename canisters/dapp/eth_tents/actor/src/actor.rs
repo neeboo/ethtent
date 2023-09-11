@@ -115,6 +115,12 @@ pub fn get_user_intent_json(user_address: String) -> Vec<String> {
 pub fn remove_user_intent_by_id(intent_id: String) -> Option<UserIntents> {
     eth_tents_mod::intent::IntentService::remove_user_intent_by_id(intent_id)
 }
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "update_intent_hash")]
+#[candid_method(update, rename = "update_intent_hash")]
+pub fn update_intent_hash(intent_id: String, tx_hash: String) -> Option<String> {
+    eth_tents_mod::intent::IntentService::update_intent_hash(intent_id, tx_hash)
+}
 
 #[cfg(not(feature = "no_candid"))]
 #[query(name = "intent_item_to_json")]

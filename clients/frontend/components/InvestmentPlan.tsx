@@ -23,7 +23,7 @@ const InvestmentPlan: React.FC<InvestPlanType> = prop => {
       <div className="row-span-1 grid grid-cols-3 space-x-1">
         <div className="col-span-2">
           <div className=" text-black text-lg font-normal">Portfolio XDai - ETH 1</div>
-          <div className=" text-black text-xs font-normal">{prop.amount} XDai - Per Month</div>
+          <div className=" text-black text-xs font-normal">{prop.amount} XDai - Per Hour</div>
         </div>
         <div>
           <button className=" w-40 bg-red-600 rounded-xl text-white hover:bg-red-500" onClick={pauseInvestment}>

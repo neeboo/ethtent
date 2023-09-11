@@ -106,6 +106,7 @@ export interface SendEVMRequest {
 export interface UserIntents {
   'is_finished' : boolean,
   'user_address' : string,
+  'tx_hash' : [] | [string],
   'intent_item' : IntentItem,
   'intent_id' : [] | [string],
 }
@@ -165,6 +166,7 @@ export interface _SERVICE {
   'remove_user_intent_by_id' : ActorMethod<[string], [] | [UserIntents]>,
   'send_from_address' : ActorMethod<[SendEVMRequest], Result_8>,
   'testUnwrap' : ActorMethod<[[] | [Principal]], string>,
+  'update_intent_hash' : ActorMethod<[string, string], [] | [string]>,
   'wallet_get_address_for_platform' : ActorMethod<[PlatformDetail], Result_9>,
   'wallet_get_all_addresses' : ActorMethod<[RoleFilter], Array<AddressInfo>>,
   'whoAmI' : ActorMethod<[], Principal>,
