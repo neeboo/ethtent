@@ -87,3 +87,5 @@ topup.sh
 
 !clients/worker/dist/
 
+worker/
+

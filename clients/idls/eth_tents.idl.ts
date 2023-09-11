@@ -170,6 +170,11 @@ export const idlFactory = ({ IDL }) => {
     'ego_user_list' : IDL.Func([], [Result_6], []),
     'ego_user_remove' : IDL.Func([IDL.Principal], [Result_2], []),
     'ego_user_set' : IDL.Func([IDL.Vec(IDL.Principal)], [Result_2], []),
+    'finish_intent' : IDL.Func(
+        [IDL.Text, IDL.Bool],
+        [IDL.Opt(UserIntents)],
+        [],
+      ),
     'get_all_intents' : IDL.Func(
         [IDL.Opt(IDL.Bool)],
         [IDL.Vec(UserIntents)],
@@ -185,6 +190,11 @@ export const idlFactory = ({ IDL }) => {
     'register_user' : IDL.Func(
         [GetDelegationRequest, IDL.Principal],
         [Result_7],
+        [],
+      ),
+    'remove_user_intent_by_id' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(UserIntents)],
         [],
       ),
     'send_from_address' : IDL.Func([SendEVMRequest], [Result_8], []),

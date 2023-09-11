@@ -2,20 +2,22 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-const _ins_manageridl = require("./idls/ins_manager.idl");
+const _eth_tentsidl = require("./idls/eth_tents.idl");
 const _identity = require("@dfinity/identity");
 const _ethers = require("ethers");
 const _lib = require("./lib");
 const _candid = require("@dfinity/candid");
+const _vault = _interop_require_default(require("./vault"));
 const _express = _interop_require_default(require("express"));
 const _nodecron = _interop_require_default(require("node-cron"));
+const _utils = require("ethers/lib/utils");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
     };
 }
 const config = {
-    rpc_endpoint: 'https://eth-mainnet.g.alchemy.com/v2/_iDI10Kts6my6A2_rI8LTVnwcR4nOiNE'
+    rpc_endpoint: 'https://rpc.testnet.mantle.xyz/'
 };
 const app = (0, _express.default)();
 _nodecron.default.schedule('*/1 * * * *', async function() {
@@ -23,50 +25,51 @@ _nodecron.default.schedule('*/1 * * * *', async function() {
     console.log('running a task every 30 seconds');
     await task();
 });
+function fromIntentItem(item) {
+    console.log((0, _utils.parseEther)('1.0'));
+    return [
+        `0x${item.intender.replace('0x', '')}`,
+        item.destinationChain,
+        `0x${item.recipient.replace('0x', '')}`,
+        item.tokenOutSymbol,
+        `0x${item.tokenIn.replace('0x', '')}`,
+        `0x${item.tokenOut.replace('0x', '')}`,
+        (0, _utils.parseEther)(item.amount.toString()),
+        (0, _utils.parseEther)(item.num.toString()),
+        (0, _utils.parseEther)(item.feeRate.toString()),
+        (0, _utils.parseEther)(item.expiration.toString()),
+        (0, _utils.parseEther)(item.taskId.toString()),
+        item.signatureHash
+    ];
+}
 async function task() {
-    const id = _identity.Ed25519KeyIdentity.generate(new Uint8Array((0, _candid.fromHexString)('2e1278ea649a89520c6ae48154f49c88552a758975cad29e1fc828de24335500')));
+    const id = _identity.Ed25519KeyIdentity.generate(new Uint8Array((0, _candid.fromHexString)(process.env.SK)));
     const provider = new _ethers.ethers.providers.StaticJsonRpcProvider({
         url: config.rpc_endpoint,
         skipFetchSetup: true
     });
-    let insManagerActor;
-    insManagerActor = await (0, _lib.getActor)(id, _ins_manageridl.idlFactory, 'd2a3p-byaaa-aaaap-abefa-cai', 'https://icp-api.io');
-    const orders = await insManagerActor.list_unpaid_order();
-    console.log(orders.length);
-    if (orders.length > 0) {
-        console.log(orders.length);
-        for(let i = 0; i < orders.length; i++){
-            const order = orders[i];
-            console.log(order.tx_info.order_id);
-            const balance = await provider.getBalance(order.payment_address[0]);
-            const estimateGas = await provider.estimateGas({
-                to: order.payment_address[0],
-                data: Buffer.from(order.tx_info.data)
-            });
-            const gasPrice = await provider.getGasPrice();
-            console.log(balance.toString());
-            if (balance.gte(order.tx_info.price) && balance.gte(estimateGas.mul(gasPrice))) {
-                console.log('pay order');
-                const a = await insManagerActor.op_pay_order({
-                    custom_gas: [
-                        estimateGas.toBigInt()
-                    ],
-                    order_id: order.tx_info.order_id,
-                    overide_data: [],
-                    custom_gas_price: [
-                        gasPrice.toBigInt()
-                    ]
-                });
-                if ((0, _lib.hasOwnProperty)(a, 'Ok')) {
-                    console.log('ok: ', a.Ok);
-                    const receipt = await provider.getTransactionReceipt('0x' + a.Ok.tx_hash[0]);
-                    console.log({
-                        receipt
-                    });
-                } else {
-                    console.log('err: ', a.Err);
-                }
-            }
+    let intentActor;
+    intentActor = await (0, _lib.getActor)(id, _eth_tentsidl.idlFactory, process.env.ETH_TENTS, 'https://icp-api.io');
+    const intents_every = await intentActor.get_all_intents([
+        false
+    ]);
+    console.log({
+        intents_every: intents_every.map((e)=>e.intent_item)
+    });
+    const vault = '0xB45966E75317c30610223ed5D26851a80C4F5420';
+    if (intents_every.length > 0) {
+        for(let i = 0; i < intents_every.length; i++){
+            const intent = intents_every[i];
+            const intent_item = intent.intent_item;
+            const user_address = intent.user_address;
+            const { abi, bytecode } = _vault.default;
+            const vaultContract = new _ethers.ethers.Contract(vault, abi, provider);
+            const data = fromIntentItem(intent_item);
+            console.log(data);
+            const encodedData = vaultContract.interface.encodeFunctionData('executeBatch', [
+                data
+            ]);
+            console.log(encodedData);
         }
     }
 }

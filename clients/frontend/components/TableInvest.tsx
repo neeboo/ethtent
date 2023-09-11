@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import DialogDemo from './CreateAPlanModal';
 import { Chain, useNetwork } from 'wagmi';
+import { SignIdentity } from '@dfinity/agent';
 function getDaiAddress(chain?: Chain): `0x${string}` | undefined {
   if (!chain) {
     return undefined;
@@ -30,7 +31,21 @@ function getIntentAddress(chain?: Chain): `0x${string}` | undefined {
   }
 }
 
-const TableInvest: React.FC = () => {
+function getAusdAddress(chain?: Chain): `0x${string}` | undefined {
+  if (!chain) {
+    return undefined;
+  }
+  switch (chain.id) {
+    case 80001: // polygon matic
+      return '0x2c852e740b62308c46dd29b982fbb650d063bd07' as `0x${string}`;
+    case 5001: // mantle
+      return '0x254d06f33bDc5b8ee05b2ea472107E300226659A' as `0x${string}`;
+    case 59140: // linea
+      return undefined;
+  }
+}
+
+const TableInvest = ({ identity }: { identity?: SignIdentity }) => {
   const tradeData = [
     {
       id: 1,
@@ -107,6 +122,8 @@ const TableInvest: React.FC = () => {
             openDialog={openDialog}
             tokenAddress={getDaiAddress(chain)}
             intentAddress={getIntentAddress(chain)}
+            ausdAddress={getAusdAddress(chain)}
+            identity={identity}
           />
         </div>
       ))}

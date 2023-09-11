@@ -45,7 +45,7 @@ export function useMMAuth(): UseMMAuth {
 
 const CONNECT_EVENT = 'eth_walletconnect';
 // const canisterId = 'cqcgt-oaaaa-aaaah-admua-cai' // hardcoded
-const canisterId = 'otw2r-2iaaa-aaaah-adnzq-cai'; // hardcoded
+const canisterId = 'rh7ba-giaaa-aaaah-adprq-cai'; // hardcoded
 
 type RequestParams = {
   key: DelegationIdentity;

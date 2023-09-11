@@ -111,6 +111,18 @@ impl IntentService {
         })
     }
 
+    pub fn finish_intent(intent_id: String, is_finished: bool) -> Option<UserIntents> {
+        let mut u8_arr = [0u8; 8];
+        let arr = hex::decode(intent_id).unwrap();
+        u8_arr.copy_from_slice(&arr);
+        INTENTS.with(|f| {
+            f.borrow_mut().get(&u8_arr).map(|mut v| {
+                v.is_finished = is_finished;
+                v.clone()
+            })
+        })
+    }
+
     pub fn get_key_id(chain_type: ChainType, key_string: String) -> EcdsaKeyIds {
         match chain_type {
             ChainType::BTC => EcdsaKeyIds::from(key_string),

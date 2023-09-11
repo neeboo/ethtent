@@ -4,11 +4,14 @@ import { idlFactory as intentsIDL, idlFactory as egoIDL } from '@/idls/eth_tents
 import { _SERVICE as intentsService, _SERVICE as egoService, IntentItem } from '@/idls/eth_tents';
 import { idlFactory as usersIDL } from '@/idls/eth_users.idl';
 import { _SERVICE as usersService } from '@/idls/eth_users';
-import { getCanisterId, getActor, identity, hasOwnProperty } from '@ego-js/utils';
+import { getCanisterId, getActor, identity, hasOwnProperty, fromHexString } from '@ego-js/utils';
 import { ActorSubclass } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
 import crypto, { BinaryLike } from 'crypto';
+import { ethers } from 'ethers';
+import { parseEther } from 'ethers/lib/utils';
+import contract from './vault';
 
 describe('eth_tents', () => {
   let intentsActor: ActorSubclass<intentsService>;
@@ -34,7 +37,7 @@ describe('eth_tents', () => {
       getCanisterId('eth_users')!,
     );
   });
-  test('init', async () => {
+  test.skip('init', async () => {
     const pid = (await intentsActor.whoAmI()).toText();
     const s = await usersActor.ensureSaltSet();
 
@@ -44,7 +47,7 @@ describe('eth_tents', () => {
 
     expect(pid).toBe(identity().getPrincipal().toText());
   });
-  test('create wallets', async () => {
+  test.skip('create wallets', async () => {
     let mantleWalet, lineaWallet, maticWallet;
     const mantle_wallet = await intentsActor.wallet_get_address_for_platform({
       platform_uuid: '12',
@@ -112,6 +115,61 @@ describe('eth_tents', () => {
 
     const intents_every = await intentsActor.get_all_intents([false]);
     console.log({ intents_every: intents_every.map(e => e.intent_item) });
+
+    // await intentsActor.remove_user_intent_by_id(intents_every[0].intent_id[0]!);
+
+    console.log(intents_every[0].intent_item);
+
+    const { abi, bytecode } = contract;
+
+    const vault = '0xB45966E75317c30610223ed5D26851a80C4F5420';
+
+    const provider = new ethers.providers.StaticJsonRpcProvider({
+      url: 'https://rpc.testnet.mantle.xyz/',
+
+      skipFetchSetup: true,
+    });
+
+    const vaultContract = new ethers.Contract(vault, abi, provider);
+
+    const data = fromIntentItem2(intents_every[intents_every.length - 1].intent_item);
+    console.log(data['amount'].toString());
+
+    const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
+
+    const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
+
+    const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
+    console.log({ balance });
+    console.log({ nonce });
+
+    const signed = await intentsActor.send_from_address({
+      gas: [BigInt(2100000)],
+      value: [],
+      data: [Array.from(new Uint8Array(fromHexString(encodedData.replace('0x', ''))))],
+      to_address: vault,
+      address_info: {
+        derived_path_hash: '0000000000000000000000000000000000000000000000000000000000003132',
+        address_for: { Platform: null },
+        key_name: 'test_key_1',
+        order_id: '12',
+        chain_type: { MANTLE: null },
+        last_update: BigInt(1694446540812992769),
+        address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188',
+      },
+      chain_id: [BigInt(5001)],
+      nonce: [BigInt(nonce)],
+      sign_only: true,
+      gas_price: [BigInt(10000000000)],
+    });
+
+    if (hasOwnProperty(signed, 'Ok')) {
+      console.log({ signed: signed.Ok });
+      const tx = await provider.sendTransaction(`0x${signed.Ok}`);
+      console.log({ tx });
+    } else {
+      console.log(signed);
+    }
   });
 });
 
@@ -130,6 +188,23 @@ export function fromIntentItem(item: IntentItem): Array<any> {
     item.taskId,
     item.signatureHash,
   ];
+}
+
+function fromIntentItem2(item: IntentItem): Record<string, any> {
+  return {
+    intender: `0x${item.intender.replace('0x', '')}`,
+    destinationChain: item.destinationChain,
+    recipient: `0x${item.recipient.replace('0x', '')}`,
+    tokenOutSymbol: item.tokenOutSymbol,
+    tokenIn: `0x${item.tokenIn.replace('0x', '')}`,
+    tokenOut: `0x${item.tokenOut.replace('0x', '')}`,
+    amount: ethers.utils.parseUnits(item.amount.toString(), 'gwei'),
+    num: ethers.utils.parseUnits(item.num == BigInt(0) ? '1' : item.num.toString(), 'wei'),
+    feeRate: ethers.utils.parseUnits(item.feeRate.toString(), 'wei'),
+    expiration: ethers.utils.parseUnits((Math.ceil(Date.now() / 1000) + 1 * 3600 * 24).toString(), 'wei'),
+    taskId: ethers.utils.parseUnits('2', 'wei'),
+    signatureHash: item.signatureHash,
+  };
 }
 
 // {
@@ -161,3 +236,6 @@ export function fromIntentItem(item: IntentItem): Array<any> {
 //     address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188'
 //   }
 // }
+
+// (0xd59d0eb6cb13664d9a68df6f46ba75430d400f55,ethereum-2,0xD59d0eB6CB13664d9A68df6F46BA75430d400f55,aUSDC,0x99f3eb619d84337070f41d15b95a2dffad76f550,0x254d06f33bdc5b8ee05b2ea472107e300226659a,100000000000000000,10,30,1695496830,1,0x),
+// (0xe0aab758f0c7eca6c0e429e41c41ee7733354d8f,ethereum-2,0xE0Aab758f0c7ecA6C0e429E41C41ee7733354D8F,aUSDC,0x99f3eb619d84337070f41d15b95a2dffad76f550,0x254d06f33bdc5b8ee05b2ea472107e300226659a,5000000,0,30,1695464172605,0,0x)

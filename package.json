@@ -42,6 +42,7 @@
     "@ego-js/cli": "^2.2.50",
     "@ego-js/core": "^2.2.50",
     "@ego-js/utils": "^2.2.50",
+    "ethers": "^5.7.2",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.3.22",
     "@swc/jest": "^0.2.24",

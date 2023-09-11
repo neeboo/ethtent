@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { idlFactory as ethTentsIDL } from '@/services/idls/eth_tents.idl';
+import { _SERVICE as ethTentsService } from '@/services/idls/eth_tents';
 import {
   Chain,
   useAccount,
@@ -18,6 +20,11 @@ import {
 } from 'wagmi';
 import { formatEther, parseEther } from 'ethers/lib/utils';
 import dai from '@/services/abis/dai';
+import { SignIdentity } from '@dfinity/agent';
+import { _createActor } from '@/services/baseConnection';
+import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
+import { KEY_ICSTORAGE_IDENTITY, KEY_ICSTORAGE_KEY } from '@/services/mm/mm';
+import { DelegationChain, DelegationIdentity, isDelegationValid } from '@dfinity/identity';
 // import { useDebounce } from 'usehooks-ts'
 
 interface DialogDemoProps {
@@ -25,6 +32,8 @@ interface DialogDemoProps {
   openDialog: (value: boolean) => void;
   tokenAddress?: `0x${string}`;
   intentAddress?: `0x${string}`;
+  ausdAddress?: `0x${string}`;
+  identity?: SignIdentity;
 }
 
 interface DCAprop {
@@ -35,7 +44,26 @@ interface DCAprop {
   limitPrice?: number;
 }
 
-const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAddress, intentAddress }) => {
+function loadIdentity(): DelegationIdentity | undefined {
+  const chainStorage = localStorage.getItem(KEY_ICSTORAGE_IDENTITY);
+  const keyStorage = localStorage.getItem(KEY_ICSTORAGE_KEY);
+  if (chainStorage && keyStorage) {
+    const chain = DelegationChain.fromJSON(chainStorage);
+    const key = Secp256k1KeyIdentity.fromJSON(keyStorage);
+    // Verify that the delegation isn't expired.
+    if (!isDelegationValid(chain)) {
+      localStorage.removeItem(KEY_ICSTORAGE_IDENTITY);
+      localStorage.removeItem(KEY_ICSTORAGE_KEY);
+    } else {
+      const identity = DelegationIdentity.fromDelegation(key, chain);
+      return identity;
+    }
+  } else {
+    return undefined;
+  }
+}
+
+const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAddress, intentAddress, identity, ausdAddress }) => {
   const [selectedRotation, setSelectedRotation] = useState<number | null>(null);
   const [selectedRotationId, setSelectedRotationId] = useState<number | null>(null);
   const [dca, setDCA] = useState<DCAprop | null>(null);
@@ -47,6 +75,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
 
   let daiAddress: `0x${string}` | undefined = tokenAddress;
   let intent: `0x${string}` | undefined = intentAddress;
+  let ausd: `0x${string}` | undefined = ausdAddress;
   const { config } = usePrepareContractWrite({
     address: daiAddress,
     abi: dai.abi,
@@ -99,9 +128,40 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
   };
 
   async function submitDCA() {
+    write!();
+  }
+
+  if (isSuccess) {
+    submitDCAToWorker();
+  }
+
+  async function submitDCAToWorker() {
     console.log({ dca });
     console.log('submitDCA');
-    write!();
+    const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
+
+    const added = await actor.add_user_intent({
+      is_finished: false,
+      user_address: address!,
+      intent_item: {
+        num: BigInt(0),
+        tokenIn: daiAddress!,
+        intender: address!,
+        tokenOut: ausd!,
+        feeRate: BigInt(30),
+        recipient: address!,
+        taskId: BigInt(0),
+        signatureHash: '0x',
+        expiration: BigInt(Math.ceil(Date.now() / 1000) + 1 * 3600 * 24),
+        order_detail: [],
+        to_chain_id: BigInt(0),
+        tokenOutSymbol: 'aUSDC',
+        destinationChain: 'ethereum-2',
+        amount: BigInt(5000000),
+        intent_id: [],
+      },
+      intent_id: [],
+    });
   }
 
   function resetForm() {

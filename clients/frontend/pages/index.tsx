@@ -29,15 +29,9 @@ export default function Home() {
       />
 
       <main className="min-h-[1280px] mx-auto w-[1080px]">
-        <Image
-          src="/static/logo.jpg"
-          alt="Picture of the author"
-          width={200}
-          height={200}
-          className="mx-auto m-2"
-        />
+        <Image src="/static/logo.jpg" alt="Picture of the author" width={200} height={200} className="mx-auto m-2" />
         <InvestmentPlanView />
-        <TableInvest />
+        <TableInvest identity={identity} />
       </main>
       <Footer />
     </>

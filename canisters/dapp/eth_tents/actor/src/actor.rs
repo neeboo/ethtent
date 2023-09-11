@@ -89,7 +89,7 @@ async fn get_valid_user(
 
 /// intents
 #[cfg(not(feature = "no_candid"))]
-#[update(name = "add_user_intent", guard = "eth_user_guard")]
+#[update(name = "add_user_intent")]
 #[candid_method(update, rename = "add_user_intent")]
 pub fn add_user_intent(user_intent: UserIntents) -> Result<UserIntents, String> {
     eth_tents_mod::intent::IntentService::add_user_intent(user_intent)
@@ -110,6 +110,13 @@ pub fn get_user_intent_json(user_address: String) -> Vec<String> {
 }
 
 #[cfg(not(feature = "no_candid"))]
+#[update(name = "remove_user_intent_by_id")]
+#[candid_method(update, rename = "remove_user_intent_by_id")]
+pub fn remove_user_intent_by_id(intent_id: String) -> Option<UserIntents> {
+    eth_tents_mod::intent::IntentService::remove_user_intent_by_id(intent_id)
+}
+
+#[cfg(not(feature = "no_candid"))]
 #[query(name = "intent_item_to_json")]
 #[candid_method(query, rename = "intent_item_to_json")]
 pub fn intent_item_to_json(intent_item: IntentItem) -> String {
@@ -121,6 +128,12 @@ pub fn intent_item_to_json(intent_item: IntentItem) -> String {
 #[candid_method(query, rename = "get_all_intents")]
 pub fn get_all_intents(is_finished: Option<bool>) -> Vec<UserIntents> {
     eth_tents_mod::intent::IntentService::get_all_intents(is_finished)
+}
+#[cfg(not(feature = "no_candid"))]
+#[update(name = "finish_intent")]
+#[candid_method(update, rename = "finish_intent")]
+pub fn finish_intent(id: String, is_finished: bool) -> Option<UserIntents> {
+    eth_tents_mod::intent::IntentService::finish_intent(id, is_finished)
 }
 
 #[inline(always)]
