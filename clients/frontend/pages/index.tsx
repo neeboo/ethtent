@@ -17,7 +17,7 @@ export default function Home() {
           await login();
         }}
         loading={isLoading}
-        buttonText={identity !== undefined && address !== undefined ? handleAddress(address!) : 'Connect'}
+        buttonText={identity !== undefined && address !== undefined ? handleAddress(address!) : isLoading ? 'Signing In ...' : 'Connect'}
         logout={logout}
         isSignedIn={identity !== undefined && address !== undefined}
       />

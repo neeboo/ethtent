@@ -102,14 +102,16 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
   };
 
   useEffect(() => {
-    initIdentity();
-  }, []);
+    if (!identity) {
+      initIdentity();
+    }
+  }, [identity]);
 
   useEffect(() => {
-    if (address) {
+    if (address && !identity) {
       providerInit();
     }
-  }, [address]);
+  }, [address, identity]);
 
   const providerInit = async () => {
     // console.log('provider', web3Provider);
@@ -230,7 +232,6 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
           setIsLoading(false);
           throw new Error(`${sm.Err}`);
         }
-        setIsLoading(false);
         await disconnectAsync();
         const provider = connect({ connector: connectors[0] });
         console.log({ provider });
@@ -241,15 +242,14 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
           actor,
           statement,
         };
-        document.addEventListener(CONNECT_EVENT, async event => {
-          document.removeEventListener(CONNECT_EVENT, () => {});
-          const identity = initIdentity();
-          if (identity) {
-            resolve(identity);
-          } else {
-            reject(undefined);
-          }
-        });
+        const identity = initIdentity();
+        if (identity) {
+          setIsLoading(false);
+          resolve(identity);
+        } else {
+          setIsLoading(false);
+          reject(undefined);
+        }
       } catch (error) {
         console.error('mm login catch', error);
         setIsLoading(false);
