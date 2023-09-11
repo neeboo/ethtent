@@ -1,3 +1,4 @@
+'use client';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { Web3Modal } from '@web3modal/standalone';
@@ -32,7 +33,21 @@ interface IContext {
 /**
  * Context
  */
-export const ClientContext = createContext<IContext>({} as IContext);
+export const ClientContext = createContext<IContext>({
+  client: undefined,
+  session: undefined,
+  connect: async () => {},
+  disconnect: async () => {},
+  isInitializing: false,
+  isConnectReady: false,
+  chain: '',
+  pairings: [],
+  accounts: [],
+  balances: {},
+  isFetchingBalances: false,
+  chainData: {},
+  web3Provider: undefined,
+} as IContext);
 
 /**
  * Provider
@@ -150,7 +165,7 @@ export function WCClientContextProvider({ children }: { children: ReactNode | Re
   const createClient = useCallback(async () => {
     try {
       setIsInitializing(true);
-
+      console.log('DEFAULT_PROJECT_ID is ===>', DEFAULT_PROJECT_ID);
       if (!DEFAULT_PROJECT_ID) return;
 
       const provider = await UniversalProvider.init({
@@ -162,6 +177,17 @@ export function WCClientContextProvider({ children }: { children: ReactNode | Re
       const web3Modal = new Web3Modal({
         projectId: DEFAULT_PROJECT_ID,
         walletConnectVersion: 2,
+        // desktopWallets: [
+        //   {
+        //     id: 'metaMask',
+        //     name: 'Metamask',
+        //     links: {
+        //       native: 'metamask://',
+        //       universal: 'https://web.customDesktopWallet.com',
+        //     },
+        //   },
+        // ],
+        // explorerExcludedWalletIds: 'ALL',
       });
 
       setEthereumProvider(provider);

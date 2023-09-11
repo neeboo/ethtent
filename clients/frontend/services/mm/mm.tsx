@@ -1,7 +1,7 @@
+'use client';
 import { SignIdentity } from '@dfinity/agent';
 import { FunctionComponent, ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react';
 import { SiweMessage } from 'siwe';
-import { hasOwnProperty } from '@ego-js/utils';
 import { _createActor, handleDelegation, requestDelegation, requestDelegation2 } from '../baseConnection';
 import { DelegationChain, DelegationIdentity, isDelegationValid } from '@dfinity/identity';
 import { idlFactory as metamaskIDL } from '../idls/eth_users.idl';
@@ -10,11 +10,15 @@ import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
 import { useWalletConnectClient } from '../walletConnect';
 import { ethers } from 'ethers';
 import { toHexString } from '@dfinity/candid';
-import { getProvider, signMessage } from '@wagmi/core';
+// import { getProvider } from 'wagmi';
+import { hasOwnProperty } from '../utils';
+import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 
 export const KEY_ICSTORAGE_KEY = 'mm-storage-key';
 export const KEY_ICSTORAGE_IDENTITY = 'mm-storage-identity';
 export interface UseMMAuth {
+  address?: string;
   identity: SignIdentity | undefined;
   isConnected: boolean;
   isLoading: boolean;
@@ -24,6 +28,7 @@ export interface UseMMAuth {
 
 export const MMAuthContext = createContext<UseMMAuth>({
   // wallet: "",
+  address: undefined,
   identity: undefined,
   isConnected: false,
   isLoading: false,
@@ -39,7 +44,7 @@ export function useMMAuth(): UseMMAuth {
   return useContext(MMAuthContext);
 }
 
-const CONNECT_EVENT = 'card3_walletconnect';
+const CONNECT_EVENT = 'eth_walletconnect';
 // const canisterId = 'cqcgt-oaaaa-aaaah-admua-cai' // hardcoded
 const canisterId = 'otw2r-2iaaa-aaaah-adnzq-cai'; // hardcoded
 
@@ -53,8 +58,16 @@ type RequestParams = {
 export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [identity, setIdentity] = useState<SignIdentity | undefined>();
-  const [isConnected, setIsConnected] = useState(false);
-  const { accounts, connect, web3Provider } = useWalletConnectClient();
+
+  // const { web3Provider } = useWalletConnectClient();
+  const { address, isConnected } = useAccount();
+
+  const [conneted, setIsConnected] = useState(isConnected);
+  const { connect, connectors } = useConnect();
+  const { disconnectAsync } = useDisconnect();
+
+  const { signMessageAsync } = useSignMessage();
+
   const requestParamsRef = useRef<RequestParams | undefined>(undefined);
 
   console.log('MM======', identity);
@@ -93,17 +106,17 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
   }, []);
 
   useEffect(() => {
-    if (web3Provider && accounts.length > 0) {
+    if (address) {
       providerInit();
     }
-  }, [web3Provider, accounts]);
+  }, [address]);
 
   const providerInit = async () => {
-    console.log('provider', web3Provider);
+    // console.log('provider', web3Provider);
     const { actor, statement, key, sessionKey } = requestParamsRef.current || {};
-    let address = accounts[0];
+
     console.log('address', address);
-    if (!address || !actor || !statement || !web3Provider) return;
+    if (!address || !actor || !statement) return;
     // const network = getNetwork();
     // Create SIWE message with pre-fetched nonce and sign with wallet
     const eip55Address = ethers.utils.getAddress(address);
@@ -118,11 +131,11 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
     const msg = message.prepareMessage();
     const hexMsg1 = toHexString(new TextEncoder().encode(msg));
     console.log('hexMsg1', hexMsg1);
-    const signature = await web3Provider.send('personal_sign', [hexMsg1, address]);
-    // const signature1 = await signMessage({
-    //   message: msg,
-    // })
-    console.log('signature', signature, getProvider());
+    // const signature = await web3Provider.send('personal_sign', [hexMsg1, address]);
+    const signature = await signMessageAsync({
+      message: msg,
+    });
+    // console.log('signature', signature, getProvider());
     // console.log('signature', signature, getProvider())
     const session_key = Array.from(
       //@ts-ignore
@@ -179,24 +192,25 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
         setIdentity(delegationResult_final.delegationIdentity);
         setIsConnected(true);
         setIsLoading(false);
-        document.dispatchEvent(
-          new CustomEvent(CONNECT_EVENT, {
-            detail: null,
-          }),
-        );
+        // document.dispatchEvent(
+        //   new CustomEvent(CONNECT_EVENT, {
+        //     detail: null,
+        //   }),
+        // );
       } else {
         setIsLoading(false);
         throw new Error('No signed delegation found');
       }
     } else {
       console.log(isVerify.Err);
-      document.dispatchEvent(new CustomEvent(CONNECT_EVENT, { detail: null }));
+      // document.dispatchEvent(new CustomEvent(CONNECT_EVENT, { detail: null }));
       setIsLoading(false);
       throw new Error('Error verifying message');
     }
   };
 
   const login = async (): Promise<SignIdentity | void> => {
+    console.log('login');
     return new Promise(async (resolve, reject) => {
       try {
         setIsLoading(true);
@@ -217,11 +231,10 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
           throw new Error(`${sm.Err}`);
         }
         setIsLoading(false);
-        // await disconnect()
-        // const provider = await connect({
-        //   connector: new InjectedConnector(),
-        // })
-        connect('eip155:1');
+        await disconnectAsync();
+        const provider = connect({ connector: connectors[0] });
+        console.log({ provider });
+        // connect('eip155:1');
         requestParamsRef.current = {
           key,
           sessionKey,
@@ -250,6 +263,7 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
     localStorage.removeItem(KEY_ICSTORAGE_KEY);
     setIdentity(undefined);
     setIsConnected(false);
+    await disconnectAsync();
   };
 
   const contextProvider = {
@@ -258,6 +272,7 @@ export const MMAuthProvider: FunctionComponent<MMAuthProps> = ({ children }) => 
     isLoading,
     login,
     logout,
+    address,
   };
   return <MMAuthContext.Provider value={contextProvider}>{children}</MMAuthContext.Provider>;
 };
