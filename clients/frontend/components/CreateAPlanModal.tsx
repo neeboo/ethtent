@@ -4,17 +4,27 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Chain,
+  useAccount,
+  useBalance,
+  useConnect,
+  useContractWrite,
+  useNetwork,
+  usePrepareContractWrite,
+  useToken,
+  useWaitForTransaction,
+} from 'wagmi';
+import { formatEther, parseEther } from 'ethers/lib/utils';
+import dai from '@/services/abis/dai';
+// import { useDebounce } from 'usehooks-ts'
 
 interface DialogDemoProps {
   available: boolean;
   openDialog: (value: boolean) => void;
+  tokenAddress?: `0x${string}`;
+  intentAddress?: `0x${string}`;
 }
 
 interface DCAprop {
@@ -25,13 +35,35 @@ interface DCAprop {
   limitPrice?: number;
 }
 
-const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
+const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAddress, intentAddress }) => {
   const [selectedRotation, setSelectedRotation] = useState<number | null>(null);
   const [selectedRotationId, setSelectedRotationId] = useState<number | null>(null);
   const [dca, setDCA] = useState<DCAprop | null>(null);
   const [commissionCharge, setCommissionCharge] = useState<number | null>(null);
   const [limitOrder, setLimitOrder] = useState<boolean>(false);
+
   const [open, setOpen] = React.useState(false);
+  const { address } = useAccount();
+
+  let daiAddress: `0x${string}` | undefined = tokenAddress;
+  let intent: `0x${string}` | undefined = intentAddress;
+  const { config } = usePrepareContractWrite({
+    address: daiAddress,
+    abi: dai.abi,
+    functionName: 'approve',
+    args: [intent, BigInt(5000000 * 3)],
+  });
+
+  const daiBalance = useBalance({
+    address,
+    token: daiAddress,
+  });
+
+  const { data, error, isError, write } = useContractWrite(config);
+
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
 
   const ONE_HOUR = 60 * 60 * 1000;
   const ONE_DAY = 24 * ONE_HOUR;
@@ -66,8 +98,17 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
     }
   };
 
-  function submitDCA() {
+  async function submitDCA() {
+    console.log({ dca });
     console.log('submitDCA');
+    write!();
+  }
+
+  function resetForm() {
+    setCommissionCharge(0);
+    setDCA(null);
+    setSelectedRotationId(1);
+    handleRotationChange(1);
   }
 
   useEffect(() => {
@@ -100,14 +141,20 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
         <div className=" grid grid-cols-2 bg-white">
           <div className="col-span-1 p-4">
             <div className="flex justify-between">
+              <div className="text-md font-bold text-black">DAI</div>
+              <div className="text-md font-normal text-black">
+                {daiBalance.data?.symbol === 'dai' ? formatEther(daiBalance.data?.value.toString()).toString() : 'Insufficient Funds'}
+              </div>
+            </div>
+            <div className="flex justify-between">
               <div className="text-md font-bold text-black">ETH</div>
               <div className="text-md font-normal text-black">100%</div>
             </div>
             <div className="mt-6">
               <div className="mb-1 text-xs font-normal text-black">Amount Per Investment</div>
-              <div className='flex gap-2 w-full'>
+              <div className="flex gap-2 w-full">
                 <Input
-                  className='w-3/4'
+                  className="w-3/4"
                   // value={open ? dca?.amount : 0}
                   onChange={e => {
                     setDCA({ ...dca, amount: parseInt(e.target.value) });
@@ -116,7 +163,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                 ></Input>
                 <Input
                   value="xDAI"
-                  className='w-1/4'
+                  className="w-1/4"
                   disabled={true}
                   onChange={e => {
                     setDCA({ ...dca, amount: parseInt(e.target.value) });
@@ -159,8 +206,8 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
               <>
                 <div className="mt-6">
                   <div className="mb-1 text-xs font-normal text-black">Limit Price</div>
-                  <div className='flex gap-2 w-full'>
-                    <Select >
+                  <div className="flex gap-2 w-full">
+                    <Select>
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Long" />
                       </SelectTrigger>
@@ -177,13 +224,12 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                       }}
                     ></Input>
                   </div>
-
                 </div>
                 <div className="mt-6">
                   <div className="mb-1 text-xs font-normal text-black">Amount Per Investment</div>
-                  <div className='flex gap-2 w-full'>
+                  <div className="flex gap-2 w-full">
                     <Input
-                      className='w-3/4'
+                      className="w-3/4"
                       // value={open ? dca?.amount : 0}
                       onChange={e => {
                         setDCA({ ...dca, amount: parseInt(e.target.value) });
@@ -192,7 +238,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
                     ></Input>
                     <Input
                       value="xDAI"
-                      className='w-1/4'
+                      className="w-1/4"
                       disabled={true}
                       onChange={e => {
                         setDCA({ ...dca, amount: parseInt(e.target.value) });
@@ -228,7 +274,15 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog }) => {
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={submitDCA}>Create</Button>
+          <Button
+            onClick={async () => await submitDCA()}
+            disabled={daiBalance.data === undefined || daiBalance.data.symbol !== 'dai' || daiBalance.data?.value < BigInt(5000000)}
+          >
+            Create
+          </Button>
+          <Button onClick={resetForm} color="cyan" variant="default">
+            Reset
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,35 @@
 'use client';
 import React, { useState } from 'react';
 import DialogDemo from './CreateAPlanModal';
+import { Chain, useNetwork } from 'wagmi';
+function getDaiAddress(chain?: Chain): `0x${string}` | undefined {
+  if (!chain) {
+    return undefined;
+  }
+  switch (chain.id) {
+    case 80001: // polygon matic
+      return '0xDDD657ebc496DDB74Fb96F21C861bd9A1807f68e' as `0x${string}`;
+    case 5001: // mantle
+      return '0x99f3eB619d84337070f41D15b95A2Dffad76F550' as `0x${string}`;
+    case 59140: // linea
+      return undefined;
+  }
+}
+
+function getIntentAddress(chain?: Chain): `0x${string}` | undefined {
+  if (!chain) {
+    return undefined;
+  }
+  switch (chain.id) {
+    case 80001: // polygon matic
+      return '0xd4159e9CC5130A7b14B88e8bb1139d8D26ABa087' as `0x${string}`;
+    case 5001: // mantle
+      return '0xB45966E75317c30610223ed5D26851a80C4F5420' as `0x${string}`;
+    case 59140: // linea
+      return undefined;
+  }
+}
+
 const TableInvest: React.FC = () => {
   const tradeData = [
     {
@@ -36,6 +65,8 @@ const TableInvest: React.FC = () => {
     setCurrentTrade(trade);
   };
 
+  const { chain } = useNetwork();
+
   return (
     <>
       <h1 className="text-black font-bold text-4xl my-2">Table of Choice</h1>
@@ -52,8 +83,9 @@ const TableInvest: React.FC = () => {
 
           <div className="col-span-6 grid grid-cols-8 items-center gap-1">
             <span
-              className={`text-xs font-bold ${parseFloat(selectedHistory[trade.id] || trade.history[0]?.value) > 0 ? 'text-green-500' : 'text-red-500'
-                }`}
+              className={`text-xs font-bold ${
+                parseFloat(selectedHistory[trade.id] || trade.history[0]?.value) > 0 ? 'text-green-500' : 'text-red-500'
+              }`}
             >
               {selectedHistory[trade.id] || trade.history[0]?.value}
             </span>
@@ -70,7 +102,12 @@ const TableInvest: React.FC = () => {
               ))}
             </div>
           </div>
-          <DialogDemo available={trade.available} openDialog={openDialog} />
+          <DialogDemo
+            available={trade.available}
+            openDialog={openDialog}
+            tokenAddress={getDaiAddress(chain)}
+            intentAddress={getIntentAddress(chain)}
+          />
         </div>
       ))}
     </>

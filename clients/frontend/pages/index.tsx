@@ -7,6 +7,8 @@ import TableInvest from '@/components/TableInvest';
 import Headers from '@/components/Header';
 import Footer from '@/components/Footer';
 import { MMAuthProvider, useMMAuth } from '@/services/mm/mm';
+import { useNetwork, useSwitchNetwork } from 'wagmi';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const { isConnected, identity, isLoading, login, logout, address } = useMMAuth();
@@ -21,7 +23,11 @@ export default function Home() {
         buttonText={identity !== undefined && address !== undefined ? handleAddress(address!) : isLoading ? 'Signing In ...' : 'Connect'}
         logout={logout}
         isSignedIn={identity !== undefined && address !== undefined}
+        onSwitchNetwork={async chainId => {
+          console.log(chainId);
+        }}
       />
+
       <main className="min-h-[1280px] mx-auto w-[1080px]">
         <Image
           src="/static/logo.jpg"

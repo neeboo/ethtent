@@ -6,7 +6,7 @@ import { createConfig, configureChains, WagmiConfig } from 'wagmi';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
-import { localhost, bsc, bscTestnet, polygon, polygonMumbai, goerli, mainnet } from 'wagmi/chains';
+import { localhost, bsc, bscTestnet, polygon, polygonMumbai, goerli, mainnet, lineaTestnet, mantleTestnet } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 // const settingProvider =
@@ -44,10 +44,7 @@ import { InjectedConnector } from 'wagmi/connectors/injected';
 //         }),
 //       ];
 //@ts-ignore
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [bsc, bscTestnet, polygon, polygonMumbai, localhost, goerli, mainnet],
-  [publicProvider()],
-);
+const { chains, publicClient, webSocketPublicClient } = configureChains([polygonMumbai, goerli, lineaTestnet, mantleTestnet], [publicProvider()]);
 
 const config = createConfig({
   autoConnect: true,
