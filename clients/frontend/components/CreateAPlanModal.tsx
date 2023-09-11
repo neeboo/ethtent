@@ -169,6 +169,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
         intent_id: [],
       },
       intent_id: [],
+      tx_hash: [],
     });
     if (hasOwnProperty(added, 'Ok')) {
       onAddedData(added.Ok);

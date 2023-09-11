@@ -163,28 +163,11 @@ async function task() {
 				console.log({ signed: signed.Ok });
 				const tx = await provider.sendTransaction(`0x${signed.Ok}`);
 				console.log({ tx });
-
-				await intentActor.intent;
+				await intentActor.update_intent_hash(intent.intent_id[0]!, tx.hash);
+				await intentActor.finish_intent(intent.intent_id[0]!, true);
 			} else {
 				console.log(signed);
 			}
-
-			// const balance = await provider.getBalance(order.payment_address[0]!);
-			// const estimateGas = await provider.estimateGas({
-			// 	to: vault,
-			// 	data: Buffer.from(order.tx_info.data),
-			// });
-			// intentActor.send_from_address({
-			// 	gas: [] | [bigint],
-			// 	value: [] | [bigint],
-			// 	data: [] | [Array<number>],
-			// 	to_address: string,
-			// 	address_info: AddressInfo,
-			// 	chain_id: [] | [bigint],
-			// 	nonce: [] | [bigint],
-			// 	sign_only: boolean,
-			// 	gas_price: [] | [bigint],
-			// });
 		}
 	}
 

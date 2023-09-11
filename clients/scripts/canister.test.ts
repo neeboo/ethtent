@@ -103,6 +103,7 @@ describe('eth_tents', () => {
         intent_id: [],
       },
       intent_id: [],
+      tx_hash: [],
     });
     console.log({ added });
   });
