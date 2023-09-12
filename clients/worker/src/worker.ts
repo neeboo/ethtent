@@ -39,7 +39,7 @@ cron.schedule('*/1 * * * *', async function () {
 	await task();
 });
 
-function fromIntentItem(item: IntentItem): Record<string, any> {
+function fromIntentItem(item: IntentItem, amount?: BigInt): Record<string, any> {
 	return {
 		intender: `0x${item.intender.replace('0x', '')}`,
 		destinationChain: item.destinationChain,
@@ -47,7 +47,7 @@ function fromIntentItem(item: IntentItem): Record<string, any> {
 		tokenOutSymbol: item.tokenOutSymbol,
 		tokenIn: `0x${item.tokenIn.replace('0x', '')}`,
 		tokenOut: `0x${item.tokenOut.replace('0x', '')}`,
-		amount: ethers.utils.parseUnits(item.amount.toString(), 'wei'),
+		amount: ethers.utils.parseUnits(amount ? amount.toString() : item.amount.toString(), 'wei'),
 		num: ethers.utils.parseUnits(item.num == BigInt(0) ? '1' : item.num.toString(), 'wei'),
 		feeRate: ethers.utils.parseUnits(item.feeRate.toString(), 'wei'),
 		expiration: ethers.utils.parseUnits((Math.ceil(Date.now() / 1000) + 1 * 3600 * 24).toString(), 'wei'),
@@ -55,6 +55,8 @@ function fromIntentItem(item: IntentItem): Record<string, any> {
 		signatureHash: item.signatureHash,
 	};
 }
+//  0.000000 000005000000
+// 50.000000 000000000000
 
 function getVaultFromDaiContract(addr: string) {
 	switch (addr.toLowerCase()) {
@@ -127,7 +129,7 @@ async function task() {
 			});
 			const { abi, bytecode } = contract;
 			const vaultContract = new ethers.Contract(vault, abi, provider);
-			const data = fromIntentItem(intent_item);
+			const data = fromIntentItem(intent_item, chainId === 80001 ? intent_item.amount / BigInt(100000000000) : undefined);
 			console.log(data);
 			const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
 			const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
