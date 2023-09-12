@@ -37,8 +37,24 @@ https://testnet.axelarscan.io/transfer/0x922844a5a0d009116ca239a392de2dad42d4841
 https://goerli.etherscan.io/tx/0x38d92ee8ab951591fdee50b79e51b24fee0f33eda8653739ea66cf49f12697d2
 
 Demo2: Linea xDAI -> Goerli wETH every hour 
+- intent TX:
+https://goerli.lineascan.build/tx/0xcc2b4aec6a38bf1237c6872ae0ae8da5a7cec68ebab0d0725c272df5c1203713
+- Axelar gateway:
+https://testnet.axelarscan.io/transfer/0xcc2b4aec6a38bf1237c6872ae0ae8da5a7cec68ebab0d0725c272df5c1203713
+- DCA cross-chain tx:
+https://goerli.etherscan.io/tx/0x118f89d653b58a811f94b3f2299dc1d7419da839e93b5d5fcefdbef56bb594a9
+https://goerli.etherscan.io/tx/0x4da7cc9ee8e14eef8ab2093ea55f153ed979551169cd0fd88cab2cd6ebb36a40
 
 Demo3: Polygon xDAI -> Goerli wETH every hour 
+- intent TX:
+https://mumbai.polygonscan.com/tx/0x6933c395db0023eef46db3f47a7afe79ea743eb9f18e9e9b1ff4153c2255480b
+- Axelar gateway:
+https://testnet.axelarscan.io/transfer/0x6933c395db0023eef46db3f47a7afe79ea743eb9f18e9e9b1ff4153c2255480b
+- DCA cross-chain tx:
+https://goerli.etherscan.io/tx/0x1f35c4379996cbb65c113ac4abe155cb8b147e487e175fa3daba3f7bb4fb7e5b
+
+
+
 
 Presentation:
 
