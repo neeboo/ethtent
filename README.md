@@ -34,6 +34,7 @@ https://explorer.testnet.mantle.xyz/tx/0x922844a5a0d009116ca239a392de2dad42d4841
 - Axelar gateway:
 https://testnet.axelarscan.io/transfer/0x922844a5a0d009116ca239a392de2dad42d4841d989839eccd7ef5f7ee29ee75 
 - DCA cross-chain tx:
+https://goerli.etherscan.io/tx/0x38d92ee8ab951591fdee50b79e51b24fee0f33eda8653739ea66cf49f12697d2
 
 Demo2: Linea xDAI -> Goerli wETH every hour 
 
