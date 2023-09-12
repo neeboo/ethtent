@@ -35,10 +35,12 @@ https://explorer.testnet.mantle.xyz/tx/0x922844a5a0d009116ca239a392de2dad42d4841
 https://testnet.axelarscan.io/transfer/0x922844a5a0d009116ca239a392de2dad42d4841d989839eccd7ef5f7ee29ee75 
 - DCA cross-chain tx:
 
-Demo2: Buy ETH (mainnet) with DAI (polygon) every hour 
+Demo2: Linea xDAI -> Goerli wETH every hour 
 
-Demo3: Buy ETH (mainnet) with DAI (linea) every hour 
+Demo3: Polygon xDAI -> Goerli wETH every hour 
 
-Presentation:https://docs.google.com/presentation/d/1fnSVpnyF03PFtBpjgA0ILBuaSA0kTizPsnBEFGJhp9k/edit#slide=id.g27d935277de_0_22   
+Presentation:
+
+https://docs.google.com/presentation/d/1fnSVpnyF03PFtBpjgA0ILBuaSA0kTizPsnBEFGJhp9k/edit#slide=id.g27d935277de_0_22   
 
 
