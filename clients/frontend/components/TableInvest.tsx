@@ -14,7 +14,7 @@ function getDaiAddress(chain?: Chain): `0x${string}` | undefined {
     case 5001: // mantle
       return '0x99f3eB619d84337070f41D15b95A2Dffad76F550' as `0x${string}`;
     case 59140: // linea
-      return undefined;
+      return '0x6DAB7981876a351A0b4E9A299ECD2F5c8462eDA6' as `0x${string}`;
   }
 }
 
@@ -28,7 +28,7 @@ function getIntentAddress(chain?: Chain): `0x${string}` | undefined {
     case 5001: // mantle
       return '0xB45966E75317c30610223ed5D26851a80C4F5420' as `0x${string}`;
     case 59140: // linea
-      return undefined;
+      return '0xFFc8B7feE0ad0Dc3e64b75ac85000aE28057f52A' as `0x${string}`;
   }
 }
 
@@ -42,7 +42,7 @@ function getAusdAddress(chain?: Chain): `0x${string}` | undefined {
     case 5001: // mantle
       return '0x254d06f33bDc5b8ee05b2ea472107E300226659A' as `0x${string}`;
     case 59140: // linea
-      return undefined;
+      return '0x254d06f33bdc5b8ee05b2ea472107e300226659a' as `0x${string}`;
   }
 }
 

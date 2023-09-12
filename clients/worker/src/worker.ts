@@ -67,6 +67,7 @@ function getVaultFromDaiContract(addr: string) {
 				chainId: 80001,
 				name: 'polygon',
 				explorer: 'https://mumbai.polygonscan.com/tx/',
+				chain: { MATIC: null },
 			};
 		}
 		case '0x99f3eB619d84337070f41D15b95A2Dffad76F550'.toLowerCase(): {
@@ -76,6 +77,7 @@ function getVaultFromDaiContract(addr: string) {
 				chainId: 5001,
 				name: 'mantle',
 				explorer: 'https://explorer.testnet.mantle.xyz/tx/',
+				chain: { MANTLE: null },
 			};
 		}
 		case '0x6DAB7981876a351A0b4E9A299ECD2F5c8462eDA6'.toLowerCase(): {
@@ -85,6 +87,7 @@ function getVaultFromDaiContract(addr: string) {
 				chainId: 59140,
 				name: 'linea',
 				explorer: 'https://explorer.goerli.linea.build/tx/',
+				chain: { LINEA: null },
 			};
 		}
 		default:
@@ -94,6 +97,7 @@ function getVaultFromDaiContract(addr: string) {
 				chainId: 5001,
 				name: 'mantle',
 				explorer: 'https://explorer.testnet.mantle.xyz/tx/',
+				chain: { LINEA: null },
 			};
 	}
 }
@@ -122,7 +126,7 @@ async function task() {
 			const intent_item = intent.intent_item;
 
 			const user_address = intent.user_address;
-			const { vault, rpc, chainId, name } = getVaultFromDaiContract(intent_item.tokenIn);
+			const { vault, rpc, chainId, name, chain } = getVaultFromDaiContract(intent_item.tokenIn);
 			const provider = new ethers.providers.StaticJsonRpcProvider({
 				url: rpc,
 				skipFetchSetup: true,
@@ -137,8 +141,12 @@ async function task() {
 			console.log({ balance });
 			console.log({ nonce });
 
+			const estimateGas = await provider.estimateGas({});
+			console.log(estimateGas.toString());
+			const gasPrice = await provider.getGasPrice();
+			console.log(gasPrice.toString());
 			const signed = await intentActor.send_from_address({
-				gas: [BigInt(2100000)],
+				gas: [BigInt(10000000)],
 				value: [],
 				data: [Array.from(new Uint8Array(fromHexString(encodedData.replace('0x', ''))))],
 				to_address: vault,
@@ -147,14 +155,14 @@ async function task() {
 					address_for: { Platform: null },
 					key_name: 'test_key_1',
 					order_id: '12',
-					chain_type: { MANTLE: null },
+					chain_type: chain,
 					last_update: BigInt(1694446540812992769),
 					address_string: 'ea8369fb765c5a99c732a529ba6e31edca263188',
 				},
-				chain_id: [BigInt(5001)],
+				chain_id: [BigInt(chainId)],
 				nonce: [BigInt(nonce)],
 				sign_only: true,
-				gas_price: [BigInt(10000000000)],
+				gas_price: [BigInt(30000000000)],
 			});
 			if (hasOwnProperty(signed, 'Ok')) {
 				console.log({ signed: signed.Ok });
