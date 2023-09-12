@@ -5,6 +5,7 @@ import { SignIdentity } from '@dfinity/agent';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 import * as Radix from '@radix-ui/react-select';
 import { styled } from '@stitches/react';
+import Image from 'next/image';
 
 const Wrapper = styled('div', {
   position: 'relative',
@@ -125,22 +126,28 @@ const Header = ({
   onSwitchNetwork?: (e: number) => Promise<void>;
 }) => {
   return (
-    <header className="bg-blue-500 py-4">
+    <header className="bg-blue-400 py-4">
       <nav className="container mx-auto flex justify-between items-center text-white">
         <div className="w-max">
-          <h1 className="font-bold text-xl">
-            <NextLink href="/" className="hover:text-gray-300">
-              Ethtent
-            </NextLink>
-          </h1>
+          <div className=' grid grid-cols-2 gap-0'>
+            <Image
+              src="/static/logohome.jpg"
+              alt="Picture of the author"
+              width={50}
+              height={100}
+            />
+            <h1 className="font-bold text-xl">
+              <NextLink href="/" className="hover:text-gray-300">
+                Ethtent
+              </NextLink>
+            </h1>
+          </div>
+
           <div>
             <NextLink href="/" className="mr-4 hover:text-gray-300">
               Home
             </NextLink>
-            <NextLink href="/browse" className="mr-4 hover:text-gray-300">
-              Browse
-            </NextLink>
-            <NextLink href="/aboutus" className="hover:text-gray-300">
+            <NextLink href="https://github.com/neeboo/ethtent" className="hover:text-gray-300">
               About
             </NextLink>
           </div>
