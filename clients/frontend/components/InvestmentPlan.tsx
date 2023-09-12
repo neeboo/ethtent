@@ -1,9 +1,30 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { InvestPlanType } from '@/types/InvestPlanType';
+import { _createActor } from '@/services/baseConnection';
+import { idlFactory as ethTentsIDL } from '@/services/idls/eth_tents.idl';
+import { IntentItem, UserIntents, _SERVICE as ethTentsService } from '@/services/idls/eth_tents';
+import { loadIdentity } from './CreateAPlanModal';
+
+export const useInterval = (cb: Function, time = 1000) => {
+  const cbRef = useRef<Function>();
+  useEffect(() => {
+    cbRef.current = cb;
+  });
+  useEffect(() => {
+    const callback = () => {
+      cbRef.current?.();
+    };
+    const timer = setInterval(() => {
+      callback();
+    }, time);
+    return () => clearInterval(timer);
+  }, []);
+};
 
 const InvestmentPlan: React.FC<InvestPlanType> = prop => {
   const [dateNow, setDateNow] = useState('');
+  const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
   function getDateNow() {
     let date = new Date();
@@ -13,6 +34,18 @@ const InvestmentPlan: React.FC<InvestPlanType> = prop => {
   useEffect(() => {
     getDateNow();
   }, []);
+
+  useInterval(async () => {
+    await getIntentDetail(prop.intent_id!);
+  }, 1000);
+
+  async function getIntentDetail(id: string) {
+    const { actor } = await _createActor<ethTentsService>(ethTentsIDL, 'ra6hu-lqaaa-aaaah-adpra-cai', loadIdentity()!, 'https://icp-api.io');
+    const detail = await actor.get_intent_by_id(id);
+    if (detail.length > 0 && detail[0]!.tx_hash) {
+      setTxHash(detail[0]!.tx_hash[0]);
+    }
+  }
 
   function pauseInvestment() {
     console.log('pauseInvestment');
@@ -29,6 +62,13 @@ const InvestmentPlan: React.FC<InvestPlanType> = prop => {
           <button className=" w-40 bg-red-600 rounded-xl text-white hover:bg-red-500" onClick={pauseInvestment}>
             Stop
           </button>
+          {txHash ? (
+            <a style={{ wordBreak: 'break-all' }} href={`https://explorer.testnet.mantle.xyz/tx/${txHash}`}>
+              {txHash}
+            </a>
+          ) : (
+            'Queueing'
+          )}
         </div>
       </div>
 

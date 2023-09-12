@@ -11,6 +11,8 @@ const InvestmentPlanView = ({ newData }: { newData?: UserIntents }) => {
     total: 110,
     date: '2023-09-10',
     gainLoss: 10,
+    tx_hash: newData?.tx_hash[0],
+    intent_id: newData?.intent_id[0],
   };
 
   return (

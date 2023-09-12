@@ -46,7 +46,7 @@ interface DCAprop {
   limitPrice?: number;
 }
 
-function loadIdentity(): DelegationIdentity | undefined {
+export function loadIdentity(): DelegationIdentity | undefined {
   const chainStorage = localStorage.getItem(KEY_ICSTORAGE_IDENTITY);
   const keyStorage = localStorage.getItem(KEY_ICSTORAGE_KEY);
   if (chainStorage && keyStorage) {

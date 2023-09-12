@@ -4,5 +4,7 @@ export type InvestPlanType = {
   currency: string; //币种
   total: number | string; //总收益
   date: number | string; //日期
-  gainLoss: number | string; //盈亏
+  gainLoss: number | string;
+  tx_hash?: string;
+  intent_id?: string; //盈亏
 };
