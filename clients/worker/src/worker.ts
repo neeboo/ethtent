@@ -97,7 +97,7 @@ function getVaultFromDaiContract(addr: string) {
 				chainId: 5001,
 				name: 'mantle',
 				explorer: 'https://explorer.testnet.mantle.xyz/tx/',
-				chain: { LINEA: null },
+				chain: { MANTLE: null },
 			};
 	}
 }
@@ -140,13 +140,14 @@ async function task() {
 			const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
 			console.log({ balance });
 			console.log({ nonce });
+			console.log({ chainId });
 
 			const estimateGas = await provider.estimateGas({});
 			console.log(estimateGas.toString());
 			const gasPrice = await provider.getGasPrice();
 			console.log(gasPrice.toString());
 			const signed = await intentActor.send_from_address({
-				gas: [BigInt(10000000)],
+				gas: [BigInt(2100000)],
 				value: [],
 				data: [Array.from(new Uint8Array(fromHexString(encodedData.replace('0x', ''))))],
 				to_address: vault,
@@ -162,7 +163,7 @@ async function task() {
 				chain_id: [BigInt(chainId)],
 				nonce: [BigInt(nonce)],
 				sign_only: true,
-				gas_price: [BigInt(30000000000)],
+				gas_price: [BigInt(10000000000)],
 			});
 			if (hasOwnProperty(signed, 'Ok')) {
 				console.log({ signed: signed.Ok });

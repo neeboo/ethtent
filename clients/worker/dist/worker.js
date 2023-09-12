@@ -89,7 +89,7 @@ function getVaultFromDaiContract(addr) {
                 name: 'mantle',
                 explorer: 'https://explorer.testnet.mantle.xyz/tx/',
                 chain: {
-                    LINEA: null
+                    MANTLE: null
                 }
             };
     }
@@ -129,13 +129,16 @@ async function task() {
             console.log({
                 nonce
             });
+            console.log({
+                chainId
+            });
             const estimateGas = await provider.estimateGas({});
             console.log(estimateGas.toString());
             const gasPrice = await provider.getGasPrice();
             console.log(gasPrice.toString());
             const signed = await intentActor.send_from_address({
                 gas: [
-                    BigInt(10000000)
+                    BigInt(2100000)
                 ],
                 value: [],
                 data: [
@@ -161,7 +164,7 @@ async function task() {
                 ],
                 sign_only: true,
                 gas_price: [
-                    BigInt(30000000000)
+                    BigInt(10000000000)
                 ]
             });
             if ((0, _lib.hasOwnProperty)(signed, 'Ok')) {
