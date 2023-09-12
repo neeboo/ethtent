@@ -1,6 +1,6 @@
 # Ethtent 
 
-an intent-solver infrastructure for automated defi earning
+an intent-solver infrastructure prototype for automated defi earning
 
 # Demo Video [here](https://www.youtube.com/watch?v=qYa4qzUO-w8)
 
