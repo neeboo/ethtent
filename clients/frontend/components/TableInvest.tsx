@@ -50,7 +50,7 @@ const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAdd
   const tradeData = [
     {
       id: 1,
-      name: 'xDai -> ETH',
+      name: 'Dai -> ETH',
       available: true,
       history: [
         { id: 1, label: '5YR', value: '113.36%' },
@@ -60,7 +60,7 @@ const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAdd
     },
     {
       id: 2,
-      name: 'xDai -> DAI',
+      name: 'Dai -> BTC',
       available: false,
       history: [
         { id: 1, label: '5YR', value: '100.36%' },
