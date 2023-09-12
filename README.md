@@ -20,6 +20,8 @@ In additional, batch transactions of different users is supported which can lead
 ## Ethtent System flow diagram
 
 ![eth](https://github.com/neeboo/ethtent/blob/main/contract/image/ethtent.png)
+![eth](https://github.com/neeboo/ethtent/blob/main/contract/image/contract.jpg)
+
 
 ## How it’s made
 
