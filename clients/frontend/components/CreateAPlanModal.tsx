@@ -237,7 +237,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
                   }}
                 ></Input>
                 <Input
-                  value="xDAI"
+                  value="DAI"
                   className="w-1/4"
                   disabled={true}
                   onChange={e => {
@@ -313,7 +313,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
                       }}
                     ></Input>
                     <Input
-                      value="xDAI"
+                      value="DAI"
                       className="w-1/4"
                       disabled={true}
                       onChange={e => {
@@ -332,7 +332,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
             <div className="grid grid-rows-4 gap-2">
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Amount Per Investment</div>
-                <div>{dca['amount'] ? dca['amount'] : '--'} xDai</div>
+                <div>{dca['amount'] ? dca['amount'] : '--'} Dai</div>
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Created Time</div>
@@ -344,7 +344,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Commission (0.3%)</div>
-                <div>{dca['amount'] ? commissionCharge : '--'} xDai</div>
+                <div>{dca['amount'] ? commissionCharge : '--'} Dai</div>
               </div>
             </div>
           </div>
