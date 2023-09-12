@@ -55,8 +55,8 @@ function fromIntentItem(item: IntentItem, amount?: BigInt): Record<string, any> 
 		signatureHash: item.signatureHash,
 	};
 }
-//  0.000000 000005000000
-// 50.000000 000000000000
+//  0000000 000005000000
+//  50000000 000000000000
 
 function getVaultFromDaiContract(addr: string) {
 	switch (addr.toLowerCase()) {
@@ -129,13 +129,14 @@ async function task() {
 			});
 			const { abi, bytecode } = contract;
 			const vaultContract = new ethers.Contract(vault, abi, provider);
-			const data = fromIntentItem(intent_item, chainId === 80001 ? intent_item.amount / BigInt(100000000000) : undefined);
+			const data = fromIntentItem(intent_item, chainId === 80001 ? intent_item.amount / BigInt(1000000000000) : undefined);
 			console.log(data);
 			const encodedData = vaultContract.interface.encodeFunctionData('executedBatch', [[data]]);
 			const nonce = await provider.getTransactionCount('0xea8369fb765c5a99c732a529ba6e31edca263188');
 			const balance = await provider.getBalance('0xea8369fb765c5a99c732a529ba6e31edca263188');
 			console.log({ balance });
 			console.log({ nonce });
+
 			const signed = await intentActor.send_from_address({
 				gas: [BigInt(2100000)],
 				value: [],
