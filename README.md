@@ -22,6 +22,18 @@ In additional, batch transactions of different users is supported which can lead
 ![eth](https://github.com/neeboo/ethtent/blob/main/contract/image/ethtent.png)
 ![eth](https://github.com/neeboo/ethtent/blob/main/contract/image/contract.jpg)
 
+## Intent Solver
+### Signing Layer
+
+A decentralized network utilizing Threshold Signing Scheme to ensure signing process is secured.
+Internet Computer also supports multiple signature verification methods, such as secp256r1 and RSA. To allow users to use modern secure devices to sign in, for example Webauthn, to be an alternative way to Account Abstraction.
+
+### Offchain Engine
+
+An identity based platform, we use Internet Computer as authentication to preserve users’ privacy.
+IC is also an cloud-like computation platform, we use it to collect singing request, dispatch routes, and calculate best price.
+
+
 
 ## How it’s made
 
