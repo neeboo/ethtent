@@ -332,7 +332,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
             <div className="grid grid-rows-4 gap-2">
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Amount Per Investment</div>
-                <div>{dca['amount'] ? dca['amount'] : '--'} USDT</div>
+                <div>{dca['amount'] ? dca['amount'] : '--'} xDai</div>
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Created Time</div>
@@ -344,7 +344,7 @@ const DialogDemo: React.FC<DialogDemoProps> = ({ available, openDialog, tokenAdd
               </div>
               <div className="flex justify-between text-xs font-normal text-black">
                 <div>Commission (0.3%)</div>
-                <div>{dca['amount'] ? commissionCharge : '--'}</div>
+                <div>{dca['amount'] ? commissionCharge : '--'} xDai</div>
               </div>
             </div>
           </div>
