@@ -50,7 +50,7 @@ const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAdd
   const tradeData = [
     {
       id: 1,
-      name: 'xDai - ETH',
+      name: 'xDai -> ETH',
       available: true,
       history: [
         { id: 1, label: '5YR', value: '113.36%' },
@@ -60,7 +60,7 @@ const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAdd
     },
     {
       id: 2,
-      name: 'xDai - BTC',
+      name: 'xDai -> DAI',
       available: false,
       history: [
         { id: 1, label: '5YR', value: '100.36%' },
@@ -99,9 +99,8 @@ const TableInvest = ({ identity, onAddedData }: { identity?: SignIdentity; onAdd
 
           <div className="col-span-6 grid grid-cols-8 items-center gap-1">
             <span
-              className={`text-xs font-bold ${
-                parseFloat(selectedHistory[trade.id] || trade.history[0]?.value) > 0 ? 'text-green-500' : 'text-red-500'
-              }`}
+              className={`text-xs font-bold ${parseFloat(selectedHistory[trade.id] || trade.history[0]?.value) > 0 ? 'text-green-500' : 'text-red-500'
+                }`}
             >
               {selectedHistory[trade.id] || trade.history[0]?.value}
             </span>
