@@ -53,6 +53,7 @@ const InvestmentPlanView = ({ newData }: { newData?: UserIntents }) => {
     gainLoss: 10,
     tx_hash: newData?.tx_hash[0],
     intent_id: newData?.intent_id[0],
+    explorer: newData?.intent_item.tokenIn ? getVaultFromDaiContract(newData?.intent_item.tokenIn!).explorer : '',
   };
 
   return (

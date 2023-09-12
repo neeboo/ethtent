@@ -63,7 +63,7 @@ const InvestmentPlan: React.FC<InvestPlanType> = prop => {
             Stop
           </button>
           {txHash ? (
-            <a style={{ wordBreak: 'break-all' }} href={`https://explorer.testnet.mantle.xyz/tx/${txHash}`} target="_blank">
+            <a style={{ wordBreak: 'break-all' }} href={`${prop.explorer}${txHash}`} target="_blank">
               {txHash}
             </a>
           ) : (

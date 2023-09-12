@@ -6,5 +6,6 @@ export type InvestPlanType = {
   date: number | string; //日期
   gainLoss: number | string;
   tx_hash?: string;
-  intent_id?: string; //盈亏
+  intent_id?: string;
+  explorer?: string; //盈亏
 };
